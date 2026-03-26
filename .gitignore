@@ -1,0 +1,36 @@
+# PharmaFlow AI — .gitignore
+
+# Data
+data/synthetic/*.csv
+data/synthetic/*.parquet
+
+# Models
+models_saved/
+mlruns/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.eggs/
+*.egg-info/
+dist/
+build/
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Jupyter
+.ipynb_checkpoints/
