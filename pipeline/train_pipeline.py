@@ -87,7 +87,7 @@ def prepare_splits(df: pd.DataFrame, feature_cols: list, target: str):
     }
 
 
-def train_gbm_models(splits: dict, cat_features: list) -> dict:
+def train_gbm_models(splits: dict, cat_features: list, tuned_lgbm_params: dict | None = None) -> dict:
     """Train LightGBM and XGBoost models."""
     models = {}
     predictions = {}
@@ -100,7 +100,7 @@ def train_gbm_models(splits: dict, cat_features: list) -> dict:
     logger.info("Training LightGBM (Global Model)")
     logger.info("━" * 60)
     
-    lgbm = LightGBMForecaster(name="lgbm_global")
+    lgbm = LightGBMForecaster(params=tuned_lgbm_params, name="lgbm_global")
     lgbm.train(
         splits["X_train"], splits["y_train"],
         splits["X_val"], splits["y_val"],
@@ -286,23 +286,19 @@ def save_models(models: dict, ensemble: StackingEnsemble = None) -> None:
 
 
 def run_pipeline(
-    tune_hyperparameters: bool = False,
-    train_neural: bool = False,
     save: bool = True,
 ) -> dict:
     """
     Run the full training pipeline.
     
     Args:
-        tune_hyperparameters: Run Optuna tuning (slow but better results)
-        train_neural: Train TFT/N-BEATS (requires neuralforecast + GPU recommended)
         save: Save models to disk
     """
     set_seed(cfg.SEED)
     start_time = time.time()
     
     logger.info("=" * 80)
-    logger.info("PharmaFlow AI — Full Training Pipeline")
+    logger.info("CuraNex AI — Full Training Pipeline")
     logger.info("=" * 80)
     
     # ── 1. Load Data ──
@@ -335,27 +331,25 @@ def run_pipeline(
     all_models = {}
     all_predictions = {}
     
-    # ── 4. Optuna Tuning (optional) ──
-    if tune_hyperparameters:
-        logger.info("\n[Phase 3a] Hyperparameter tuning...")
-        lgbm_tuner = LightGBMForecaster(name="lgbm_tuner")
-        best_lgbm = lgbm_tuner.tune_hyperparameters(
-            splits["X_train"], splits["y_train"],
-            categorical_features=feat_info["categorical"],
-        )
+    # ── 4. Optuna Tuning ──
+    logger.info("\n[Phase 3a] Hyperparameter tuning...")
+    lgbm_tuner = LightGBMForecaster(name="lgbm_tuner")
+    tuned_lgbm_params = lgbm_tuner.tune_hyperparameters(
+        splits["X_train"], splits["y_train"],
+        categorical_features=feat_info["categorical"],
+    )
     
     # ── 5. Train GBM Models ──
     logger.info("\n[Phase 3] Training GBM models...")
-    gbm_models, gbm_preds = train_gbm_models(splits, feat_info["categorical"])
+    gbm_models, gbm_preds = train_gbm_models(splits, feat_info["categorical"], tuned_lgbm_params)
     all_models.update(gbm_models)
     all_predictions.update(gbm_preds)
     
-    # ── 6. Train Neural Models (optional) ──
-    if train_neural:
-        logger.info("\n[Phase 4] Training neural models...")
-        neural_models, neural_preds = train_neural_models(splits)
-        all_models.update(neural_models)
-        all_predictions.update(neural_preds)
+    # ── 6. Train Neural Models ──
+    logger.info("\n[Phase 4] Training neural models...")
+    neural_models, neural_preds = train_neural_models(splits)
+    all_models.update(neural_models)
+    all_predictions.update(neural_preds)
     
     # ── 7. Train Baselines ──
     logger.info("\n[Phase 5] Training baselines...")
@@ -441,15 +435,11 @@ def run_pipeline(
 if __name__ == "__main__":
     import argparse
     
-    parser = argparse.ArgumentParser(description="PharmaFlow AI Training Pipeline")
-    parser.add_argument("--tune", action="store_true", help="Run Optuna hyperparameter tuning")
-    parser.add_argument("--neural", action="store_true", help="Train TFT and N-BEATS models")
+    parser = argparse.ArgumentParser(description="CuraNex AI Training Pipeline")
     parser.add_argument("--no-save", action="store_true", help="Don't save models to disk")
     
     args = parser.parse_args()
     
     results = run_pipeline(
-        tune_hyperparameters=args.tune,
-        train_neural=args.neural,
         save=not args.no_save,
     )
