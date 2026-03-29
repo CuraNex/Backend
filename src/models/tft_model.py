@@ -1,5 +1,5 @@
 """
-PharmaFlow AI — Temporal Fusion Transformer (TFT)
+CuraNex AI — Temporal Fusion Transformer (TFT)
 ===================================================
 Multi-horizon forecaster with attention-based interpretability.
 Uses NeuralForecast (Nixtla) for the TFT implementation.

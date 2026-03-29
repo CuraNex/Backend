@@ -1,7 +1,6 @@
 # PharmaFlow AI — .gitignore
 
 # Data
-data/synthetic/*.csv
 data/synthetic/*.parquet
 
 # Models

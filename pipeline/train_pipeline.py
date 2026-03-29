@@ -286,12 +286,16 @@ def save_models(models: dict, ensemble: StackingEnsemble = None) -> None:
 
 
 def run_pipeline(
+    tune_hyperparameters: bool = False,
+    train_neural: bool = False,
     save: bool = True,
 ) -> dict:
     """
     Run the full training pipeline.
     
     Args:
+        tune_hyperparameters: Run Optuna tuning (slow but better results)
+        train_neural: Train TFT/N-BEATS (requires neuralforecast + GPU recommended)
         save: Save models to disk
     """
     set_seed(cfg.SEED)
@@ -332,12 +336,13 @@ def run_pipeline(
     all_predictions = {}
     
     # ── 4. Optuna Tuning ──
-    logger.info("\n[Phase 3a] Hyperparameter tuning...")
-    lgbm_tuner = LightGBMForecaster(name="lgbm_tuner")
-    tuned_lgbm_params = lgbm_tuner.tune_hyperparameters(
-        splits["X_train"], splits["y_train"],
-        categorical_features=feat_info["categorical"],
-    )
+    if tune_hyperparameters:
+        logger.info("\n[Phase 3a] Hyperparameter tuning...")
+        lgbm_tuner = LightGBMForecaster(name="lgbm_tuner")
+        tuned_lgbm_params = lgbm_tuner.tune_hyperparameters(
+            splits["X_train"], splits["y_train"],
+            categorical_features=feat_info["categorical"],
+        )
     
     # ── 5. Train GBM Models ──
     logger.info("\n[Phase 3] Training GBM models...")
@@ -346,10 +351,11 @@ def run_pipeline(
     all_predictions.update(gbm_preds)
     
     # ── 6. Train Neural Models ──
-    logger.info("\n[Phase 4] Training neural models...")
-    neural_models, neural_preds = train_neural_models(splits)
-    all_models.update(neural_models)
-    all_predictions.update(neural_preds)
+    if train_neural:
+        logger.info("\n[Phase 4] Training neural models...")
+        neural_models, neural_preds = train_neural_models(splits)
+        all_models.update(neural_models)
+        all_predictions.update(neural_preds)
     
     # ── 7. Train Baselines ──
     logger.info("\n[Phase 5] Training baselines...")
@@ -436,6 +442,8 @@ if __name__ == "__main__":
     import argparse
     
     parser = argparse.ArgumentParser(description="CuraNex AI Training Pipeline")
+    parser.add_argument("--tune", action="store_true", help="Run Optuna hyperparameter tuning")
+    parser.add_argument("--neural", action="store_true", help="Train TFT and N-BEATS models")
     parser.add_argument("--no-save", action="store_true", help="Don't save models to disk")
     
     args = parser.parse_args()

@@ -1,5 +1,5 @@
 """
-PharmaFlow AI — N-BEATS Model
+CuraNex AI — N-BEATS Model
 ================================
 Neural Basis Expansion Analysis for Time Series.
 Pure univariate expert that decomposes demand into trend + seasonality
@@ -110,7 +110,7 @@ class NBEATSForecaster:
         logger.info(f"[{self.name}] N-BEATS training complete!")
         
         return self
-    
+        
     def predict(self, df: pd.DataFrame, target: str = "quantity_ordered") -> pd.DataFrame:
         """Generate forecasts."""
         if self.nf is None:
