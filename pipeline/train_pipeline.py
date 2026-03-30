@@ -1,5 +1,5 @@
 """
-PharmaFlow AI — End-to-End Training Pipeline
+CuraNex AI — End-to-End Training Pipeline
 ===============================================
 Orchestrates the full workflow:
 1. Data loading (or generation)
@@ -87,7 +87,7 @@ def prepare_splits(df: pd.DataFrame, feature_cols: list, target: str):
     }
 
 
-def train_gbm_models(splits: dict, cat_features: list, tuned_lgbm_params: dict | None = None) -> dict:
+def train_gbm_models(splits: dict, cat_features: list, tuned_lgbm_params: dict | None = None, tuned_xgb_params: dict | None = None) -> dict:
     """Train LightGBM and XGBoost models."""
     models = {}
     predictions = {}
@@ -124,7 +124,7 @@ def train_gbm_models(splits: dict, cat_features: list, tuned_lgbm_params: dict |
     logger.info("Training XGBoost")
     logger.info("━" * 60)
     
-    xgb_model = XGBoostForecaster(name="xgb_segment")
+    xgb_model = XGBoostForecaster(params=tuned_xgb_params, name="xgb_segment")
     xgb_model.train(
         splits["X_train"], splits["y_train"],
         splits["X_val"], splits["y_val"],
@@ -151,6 +151,57 @@ def train_neural_models(splits: dict) -> dict:
     models = {}
     predictions = {}
     
+    def _extract_median(forecasts, model_name):
+        """Extract the median/point prediction column from NeuralForecast output."""
+        median_col = [c for c in forecasts.columns if "median" in c.lower() or c == model_name]
+        if median_col:
+            cols = ["unique_id", median_col[0]]
+            if "ds" in forecasts.columns:
+                cols = ["unique_id", "ds", median_col[0]]
+            return forecasts[cols].rename(columns={median_col[0]: "pred"})
+        return None
+    
+    def _align_to_split(neural_preds_df, split_df, n_expected):
+        """
+        Map neural predictions back to the full split index.
+        
+        Strategy:
+        1. Try matching by (unique_id, ds) for exact date alignment
+        2. Fall back to per-series mean if dates don't match
+        
+        Returns: np.array of length n_expected, with 0 for unmatched rows.
+        """
+        # Build lookup keys from the split DataFrame
+        split_uids = (split_df["retailer_id"].astype(str) + "_" + split_df["sku_id"].astype(str)).values[:n_expected]
+        split_dates = pd.to_datetime(split_df["date"]).values[:n_expected]
+        
+        result = np.zeros(n_expected)
+        
+        # Strategy 1: exact (unique_id, ds) match
+        if "ds" in neural_preds_df.columns:
+            neural_preds_df = neural_preds_df.copy()
+            neural_preds_df["ds"] = pd.to_datetime(neural_preds_df["ds"])
+            lookup = neural_preds_df.set_index(["unique_id", "ds"])["pred"]
+            
+            for i in range(n_expected):
+                key = (split_uids[i], split_dates[i])
+                if key in lookup.index:
+                    result[i] = lookup[key]
+        
+        n_date_matched = (result != 0).sum()
+        
+        # Strategy 2: for unmatched rows, use per-series mean
+        if n_date_matched < n_expected:
+            avg_by_id = neural_preds_df.groupby("unique_id")["pred"].mean()
+            for i in range(n_expected):
+                if result[i] == 0 and split_uids[i] in avg_by_id.index:
+                    result[i] = avg_by_id[split_uids[i]]
+        
+        n_total_matched = (result != 0).sum()
+        logger.info(f"  Aligned {n_total_matched:,}/{n_expected:,} predictions "
+                    f"({n_date_matched:,} by date, {n_total_matched - n_date_matched:,} by series mean)")
+        return result
+    
     # ── TFT ──
     try:
         from src.models.tft_model import TFTForecaster
@@ -160,18 +211,29 @@ def train_neural_models(splits: dict) -> dict:
         logger.info("━" * 60)
         
         tft = TFTForecaster(name="tft")
-        tft.train(splits["df_train"], max_series=200)
+        tft.train(splits["df_train"], max_series=1000000000)
         
-        # Get predictions
-        tft_forecasts = tft.predict(splits["df_val"])
-        
-        # Map TFT predictions back to test indices
-        if tft_forecasts is not None and len(tft_forecasts) > 0:
-            models["tft"] = tft
-            # Use the median (P50) prediction
-            median_col = [c for c in tft_forecasts.columns if "median" in c.lower() or c == "TFT"]
-            if median_col:
-                predictions["tft_val"] = tft_forecasts[median_col[0]].values[:len(splits["y_val"])]
+        # Val predictions
+        tft_val = tft.predict(splits["df_val"])
+        if tft_val is not None and len(tft_val) > 0:
+            preds_df = _extract_median(tft_val, "TFT")
+            if preds_df is not None:
+                models["tft"] = tft
+                predictions["tft_val"] = _align_to_split(
+                    preds_df, splits["df_val"], len(splits["y_val"])
+                )
+                
+                # Test predictions
+                try:
+                    tft_test = tft.predict(splits["df_test"])
+                    if tft_test is not None and len(tft_test) > 0:
+                        test_df = _extract_median(tft_test, "TFT")
+                        if test_df is not None:
+                            predictions["tft_test"] = _align_to_split(
+                                test_df, splits["df_test"], len(splits["y_test"])
+                            )
+                except Exception as e:
+                    logger.warning(f"TFT test prediction failed: {e}")
     
     except Exception as e:
         logger.warning(f"TFT training failed (will skip in ensemble): {e}")
@@ -185,15 +247,29 @@ def train_neural_models(splits: dict) -> dict:
         logger.info("━" * 60)
         
         nbeats = NBEATSForecaster(name="nbeats")
-        nbeats.train(splits["df_train"], max_series=200)
+        nbeats.train(splits["df_train"], max_series=1000000000)
         
-        nbeats_forecasts = nbeats.predict(splits["df_val"])
-        
-        if nbeats_forecasts is not None and len(nbeats_forecasts) > 0:
-            models["nbeats"] = nbeats
-            median_col = [c for c in nbeats_forecasts.columns if "median" in c.lower() or c == "NBEATS"]
-            if median_col:
-                predictions["nbeats_val"] = nbeats_forecasts[median_col[0]].values[:len(splits["y_val"])]
+        # Val predictions
+        nbeats_val = nbeats.predict(splits["df_val"])
+        if nbeats_val is not None and len(nbeats_val) > 0:
+            preds_df = _extract_median(nbeats_val, "NBEATS")
+            if preds_df is not None:
+                models["nbeats"] = nbeats
+                predictions["nbeats_val"] = _align_to_split(
+                    preds_df, splits["df_val"], len(splits["y_val"])
+                )
+                
+                # Test predictions
+                try:
+                    nbeats_test = nbeats.predict(splits["df_test"])
+                    if nbeats_test is not None and len(nbeats_test) > 0:
+                        test_df = _extract_median(nbeats_test, "NBEATS")
+                        if test_df is not None:
+                            predictions["nbeats_test"] = _align_to_split(
+                                test_df, splits["df_test"], len(splits["y_test"])
+                            )
+                except Exception as e:
+                    logger.warning(f"N-BEATS test prediction failed: {e}")
     
     except Exception as e:
         logger.warning(f"N-BEATS training failed (will skip in ensemble): {e}")
@@ -286,9 +362,10 @@ def save_models(models: dict, ensemble: StackingEnsemble = None) -> None:
 
 
 def run_pipeline(
-    tune_hyperparameters: bool = False,
-    train_neural: bool = False,
+    tune_hyperparameters: bool = True,
+    train_neural: bool = True,
     save: bool = True,
+    generate_plots: bool = False,
 ) -> dict:
     """
     Run the full training pipeline.
@@ -336,17 +413,26 @@ def run_pipeline(
     all_predictions = {}
     
     # ── 4. Optuna Tuning ──
+    tuned_lgbm_params = None
+    tuned_xgb_params = None
+    
     if tune_hyperparameters:
-        logger.info("\n[Phase 3a] Hyperparameter tuning...")
+        logger.info("\n[Phase 3a] Hyperparameter tuning (LightGBM)...")
         lgbm_tuner = LightGBMForecaster(name="lgbm_tuner")
         tuned_lgbm_params = lgbm_tuner.tune_hyperparameters(
             splits["X_train"], splits["y_train"],
             categorical_features=feat_info["categorical"],
         )
+        
+        logger.info("\n[Phase 3b] Hyperparameter tuning (XGBoost)...")
+        xgb_tuner = XGBoostForecaster(name="xgb_tuner")
+        tuned_xgb_params = xgb_tuner.tune_hyperparameters(
+            splits["X_train"], splits["y_train"],
+        )
     
     # ── 5. Train GBM Models ──
     logger.info("\n[Phase 3] Training GBM models...")
-    gbm_models, gbm_preds = train_gbm_models(splits, feat_info["categorical"], tuned_lgbm_params)
+    gbm_models, gbm_preds = train_gbm_models(splits, feat_info["categorical"], tuned_lgbm_params, tuned_xgb_params)
     all_models.update(gbm_models)
     all_predictions.update(gbm_preds)
     
@@ -370,16 +456,24 @@ def run_pipeline(
     
     # ── 9. Generate Ensemble Predictions ──
     ensemble_test_preds = None
+    n_test = len(splits["y_test"])
     if ensemble is not None:
         test_base_preds = {}
         for key, preds in all_predictions.items():
-            if key.endswith("_test"):
+            if key.endswith("_test") and key != "snaive_test":
                 model_name = key.replace("_test", "")
-                test_base_preds[model_name] = preds[:len(splits["y_test"])]
+                p = preds[:n_test]
+                # Only include predictions that cover ALL test samples
+                # (neural models may only cover a subset of series)
+                if len(p) == n_test:
+                    test_base_preds[model_name] = p
+                else:
+                    logger.info(f"Skipping {model_name} from ensemble test "
+                                f"({len(p)} vs {n_test} expected)")
         
         if test_base_preds:
             segment_test = splits["df_test"][["tier_encoded", "therapeutic_category_encoded"]].reset_index(drop=True)
-            ensemble_test_preds = ensemble.predict(test_base_preds, segment_test.iloc[:len(splits["y_test"])])
+            ensemble_test_preds = ensemble.predict(test_base_preds, segment_test.iloc[:n_test])
     else:
         # Fallback to simple average
         test_preds = {k.replace("_test", ""): v for k, v in all_predictions.items() if k.endswith("_test")}
@@ -393,18 +487,41 @@ def run_pipeline(
     for key, preds in all_predictions.items():
         if key.endswith("_test"):
             name = key.replace("_test", "")
-            test_model_preds[name] = preds[:len(splits["y_test"])]
+            p = np.asarray(preds)[:n_test]
+            if len(p) == n_test:
+                test_model_preds[name] = p
     
-    test_model_preds["seasonal_naive"] = all_predictions.get("snaive_test", np.zeros(len(splits["y_test"])))[:len(splits["y_test"])]
+    test_model_preds["seasonal_naive"] = all_predictions.get("snaive_test", np.zeros(n_test))[:n_test]
     
     if ensemble_test_preds is not None:
-        test_model_preds["ensemble"] = ensemble_test_preds[:len(splits["y_test"])]
+        test_model_preds["ensemble"] = ensemble_test_preds[:n_test]
     
     evaluation = generate_evaluation_summary(
         splits["y_test"].values,
         test_model_preds,
         splits["df_test"],
     )
+    
+    # Collect ensemble predictions for val + test (used by plots)
+    ensemble_preds_by_split = {}
+    
+    # Val: ensemble trained on val preds — use them directly
+    n_val = len(splits["y_val"])
+    if ensemble is not None:
+        val_base_preds = {}
+        for key, preds in all_predictions.items():
+            if key.endswith("_val") and key != "snaive_val":
+                model_name = key.replace("_val", "")
+                p = np.asarray(preds)[:n_val]
+                if len(p) == n_val:
+                    val_base_preds[model_name] = p
+        if val_base_preds:
+            segment_val = splits["df_val"][["tier_encoded", "therapeutic_category_encoded"]].reset_index(drop=True)
+            ensemble_val_preds = ensemble.predict(val_base_preds, segment_val.iloc[:n_val])
+            ensemble_preds_by_split["val"] = ensemble_val_preds
+    
+    if ensemble_test_preds is not None:
+        ensemble_preds_by_split["test"] = ensemble_test_preds
     
     # ── 11. Cold-Start Clustering ──
     logger.info("\n[Phase 8] Cold-start clustering...")
@@ -428,6 +545,17 @@ def run_pipeline(
     logger.info(f"Pipeline complete! Total time: {elapsed:.1f}s ({elapsed/60:.1f}m)")
     logger.info("=" * 80)
     
+    # ── 13. Generate Plots ──
+    if generate_plots:
+        logger.info("\n[Phase 10] Generating evaluation plots...")
+        from src.evaluation.plots import generate_all_plots
+        generate_all_plots(
+            splits=splits,
+            all_predictions=all_predictions,
+            models=all_models,
+            ensemble_preds=ensemble_preds_by_split,
+        )
+    
     return {
         "models": all_models,
         "ensemble": ensemble,
@@ -445,9 +573,13 @@ if __name__ == "__main__":
     parser.add_argument("--tune", action="store_true", help="Run Optuna hyperparameter tuning")
     parser.add_argument("--neural", action="store_true", help="Train TFT and N-BEATS models")
     parser.add_argument("--no-save", action="store_true", help="Don't save models to disk")
+    parser.add_argument("--plots", action="store_true", help="Generate evaluation plots")
     
     args = parser.parse_args()
     
     results = run_pipeline(
+        tune_hyperparameters=args.tune,
+        train_neural=args.neural,
         save=not args.no_save,
+        generate_plots=args.plots,
     )

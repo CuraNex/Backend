@@ -11,6 +11,7 @@ PROJECT_ROOT = Path(__file__).parent
 DATA_DIR = PROJECT_ROOT / "data"
 SYNTHETIC_DIR = DATA_DIR / "synthetic"
 MODEL_DIR = PROJECT_ROOT / "models_saved"
+PLOTS_DIR = PROJECT_ROOT / "plots"
 MLFLOW_DIR = PROJECT_ROOT / "mlruns"
 
 # Ensure directories exist

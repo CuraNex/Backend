@@ -12,9 +12,9 @@ lightgbm>=4.0.0
 xgboost>=2.0.0
 
 # Deep Learning / Neural Forecasting
-torch>=2.0.0
-pytorch-lightning>=2.0.0
-neuralforecast>=1.7.0
+torch>=2.4.0,<2.7.0
+pytorch-lightning>=2.0.0,<2.3.0
+neuralforecast>=3.1.0,<3.2.0
 
 # Hyperparameter Optimization
 optuna>=3.4.0

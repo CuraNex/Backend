@@ -1,5 +1,5 @@
 """
-PharmaFlow AI — XGBoost Model
+CuraNex AI — XGBoost Model
 ===============================
 XGBoost variant providing ensemble diversity through different tree-building
 strategy and regularization approach vs LightGBM.

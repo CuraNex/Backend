@@ -1,5 +1,5 @@
 """
-PharmaFlow AI — LightGBM Model
+CuraNex AI — LightGBM Model
 ================================
 Global and segment-specific LightGBM models for demand forecasting.
 Supports point predictions (MAE/MSE) and quantile regression (P10/P50/P90).
