@@ -116,6 +116,9 @@ class StackingEnsemble:
         """
         meta_X = self._build_meta_features(base_predictions, segment_features)
         
+        # Remember the exact column order for predict-time reconstruction
+        self.feature_columns_ = list(meta_X.columns)
+        
         # Scale features
         meta_X_scaled = pd.DataFrame(
             self.scaler.fit_transform(meta_X),
@@ -173,22 +176,44 @@ class StackingEnsemble:
         Generate ensemble prediction by combining base model outputs.
         
         Handles missing models gracefully — if a base model's prediction
-        is missing, only uses available models.
+        is missing at test time, it is filled with the mean of the available
+        base-model predictions so that the scaler sees the same feature set
+        it was fitted on.
         """
         if self.meta_learner is None:
             raise ValueError("Meta-learner not trained. Call train() first.")
         
-        meta_X = self._build_meta_features(base_predictions, segment_features)
+        # Determine sample count from whatever predictions are available
+        n_samples = len(next(iter(base_predictions.values())))
         
-        # Handle missing model columns by filling with mean of available models
-        for col in self.base_model_names:
-            if col not in meta_X.columns:
-                available = [c for c in self.base_model_names if c in meta_X.columns]
-                meta_X[col] = meta_X[available].mean(axis=1)
+        # Build meta-feature matrix using the TRAINING-TIME column order
+        available_model_cols = [
+            c for c in self.base_model_names if c in base_predictions
+        ]
+        available_mean = np.column_stack(
+            [np.asarray(base_predictions[c])[:n_samples] for c in available_model_cols]
+        ).mean(axis=1) if available_model_cols else np.zeros(n_samples)
+        
+        meta_data = {}
+        for col in self.feature_columns_:
+            if col in base_predictions:
+                meta_data[col] = np.asarray(base_predictions[col])[:n_samples]
+            elif col in ("tier_encoded", "therapeutic_category_encoded"):
+                if segment_features is not None and col in segment_features.columns:
+                    meta_data[col] = segment_features[col].values[:n_samples]
+                else:
+                    meta_data[col] = np.zeros(n_samples)
+            else:
+                # Missing base model — fill with mean of available models
+                logger.info(f"[{self.name}] Model '{col}' missing at predict time — "
+                            f"filling with mean of {available_model_cols}")
+                meta_data[col] = available_mean
+        
+        meta_X = pd.DataFrame(meta_data, columns=self.feature_columns_)
         
         meta_X_scaled = pd.DataFrame(
             self.scaler.transform(meta_X),
-            columns=meta_X.columns,
+            columns=self.feature_columns_,
         )
         
         preds = self.meta_learner.predict(meta_X_scaled)

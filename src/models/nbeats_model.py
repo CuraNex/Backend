@@ -56,7 +56,7 @@ class NBEATSForecaster:
         self,
         df_train: pd.DataFrame,
         target: str = "quantity_ordered",
-        max_series: int = 500,
+        max_series: int = 100000000000,
     ) -> "NBEATSForecaster":
         """
         Train N-BEATS on the interpretable variant.
@@ -118,7 +118,7 @@ class NBEATSForecaster:
         
         nf_df = self._prepare_data(df, target)
         
-        trained_ids = set(self.nf.dataset.uids) if hasattr(self.nf, "dataset") else set()
+        trained_ids = set(self.nf.uids) if hasattr(self.nf, "uids") else set()
         if trained_ids:
             nf_df = nf_df[nf_df["unique_id"].isin(trained_ids)]
         
