@@ -393,7 +393,8 @@ def generate_all_plots(
         plot_model_comparison(y_test, test_preds, split_name="Test")
 
         # ── 2. Actual vs Predicted + Residuals (best model or ensemble) ──
-        best_name = "ensemble" if "ensemble" in test_preds else list(test_preds.keys())[0]
+        # "ensemble" if "ensemble" in test_preds else list(test_preds.keys())[0]
+        best_name = list(test_preds.keys())[0]
         best_preds = test_preds[best_name]
 
         plot_actual_vs_predicted(y_test, best_preds, model_name=best_name, split_name="Test")
