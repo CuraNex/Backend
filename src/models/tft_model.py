@@ -65,17 +65,20 @@ class TFTForecaster:
     
     def _get_exog_columns(self, df: pd.DataFrame) -> tuple:
         """Identify historic and future exogenous columns."""
-        # Static exogenous: time-invariant (identify first to exclude from others)
-        stat_exog = [c for c in df.columns if c.endswith("_encoded") or c in ["years_active", "is_critical",
-                                                                                "shelf_life_months", "supplier_lead_time_days"]]
+        # Static exogenous: time-invariant features
+        static_candidates = [
+            "years_active", "is_critical", "shelf_life_months",
+            "supplier_lead_time_days", "product_age_weeks",
+        ]
+        stat_exog = [c for c in df.columns if c.endswith("_encoded") or c in static_candidates]
         stat_set = set(stat_exog)
         
         # Historic exogenous: observed values (lags, rolling stats)
         hist_exog = [c for c in df.columns if c.startswith(("lag_", "rolling_", "days_since", "order_freq", "growth_"))
                      and c not in stat_set]
         
-        # Future exogenous: known future values (calendar) — exclude static columns
-        futr_exog = [c for c in df.columns if c.startswith(("is_", "week_of_year", "dengue_", "respiratory_"))
+        # Future exogenous: known future values (calendar + health proxies)
+        futr_exog = [c for c in df.columns if c.startswith(("is_", "week_of_year", "dengue_", "respiratory_", "rainfall_"))
                      and c not in stat_set]
         
         return hist_exog, futr_exog, stat_exog
@@ -241,6 +244,14 @@ class TFTForecaster:
             # Health signals — use seasonal averages as proxy for future
             futr_df["dengue_index"] = futr_df["week_of_year"].isin(cfg.DENGUE_PEAK_WEEKS).astype(float) * 0.7
             futr_df["respiratory_index"] = futr_df["week_of_year"].isin(cfg.RESPIRATORY_PEAK_WEEKS).astype(float) * 0.6
+            
+            # Rainfall — use seasonal averages based on week_of_year
+            # Approximate with moderate default; SW monsoon weeks get higher values
+            sw_weeks = set(cfg.RAINFALL_SEASONS["sw_monsoon"]["weeks"])
+            ne_weeks = set(cfg.RAINFALL_SEASONS["ne_monsoon"]["weeks"])
+            futr_df["rainfall_index"] = futr_df["week_of_year"].apply(
+                lambda w: 70.0 if w in sw_weeks else 55.0 if w in ne_weeks else 35.0
+            )
             
             # Keep only columns the model was trained with
             futr_keep = ["unique_id", "ds"] + [c for c in futr_exog if c in futr_df.columns]

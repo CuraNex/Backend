@@ -92,6 +92,12 @@ class ColdStartHandler:
         """
         logger.info(f"[{self.name}] Fitting cold-start clusters...")
         
+        # Ensure consistent retailer_id type
+        transactions = transactions.copy()
+        transactions["retailer_id"] = transactions["retailer_id"].astype(str)
+        retailers = retailers.copy()
+        retailers["retailer_id"] = retailers["retailer_id"].astype(str)
+        
         # Identify retailers with sufficient history
         retailer_weeks = transactions.groupby("retailer_id")["date"].nunique()
         established = retailer_weeks[retailer_weeks >= cfg.COLD_START_THRESHOLD_WEEKS].index

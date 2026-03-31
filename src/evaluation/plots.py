@@ -319,13 +319,20 @@ def plot_forecast_timeline(
 ) -> Optional[plt.Figure]:
     """
     Line chart showing actual vs predicted for a few sampled retailer-SKU pairs.
+    Uses real retailer_name and brand for human-readable labels.
     """
     if "retailer_id" not in df.columns or "sku_id" not in df.columns:
         return None
 
     eval_df = df.copy()
     eval_df["pred"] = preds[:len(eval_df)]
-    eval_df["pair"] = eval_df["retailer_id"] + "_" + eval_df["sku_id"]
+    eval_df["pair"] = eval_df["retailer_id"].astype(str) + "_" + eval_df["sku_id"].astype(str)
+
+    # Build display label from retailer_name and brand (if available)
+    if "retailer_name" in eval_df.columns and "generic_name" in eval_df.columns:
+        eval_df["pair_label"] = eval_df["retailer_name"].fillna(eval_df["retailer_id"].astype(str)) + " × " + eval_df["generic_name"].fillna(eval_df["sku_id"].astype(str))
+    else:
+        eval_df["pair_label"] = eval_df["pair"]
 
     # Pick most active pairs
     top_pairs = eval_df.groupby("pair")[target].sum().nlargest(n_series).index
@@ -336,10 +343,11 @@ def plot_forecast_timeline(
 
     for ax, pair in zip(axes, top_pairs):
         sub = eval_df[eval_df["pair"] == pair].sort_values("date")
+        display_label = sub["pair_label"].iloc[0] if len(sub) > 0 else pair
         ax.plot(sub["date"], sub[target], label="Actual", color=PALETTE[0], linewidth=1.5)
         ax.plot(sub["date"], sub["pred"], label="Predicted", color=PALETTE[1], linewidth=1.5, linestyle="--")
         ax.set_ylabel("Qty")
-        ax.set_title(pair, fontsize=10)
+        ax.set_title(display_label, fontsize=10)
         ax.legend(fontsize=8, loc="upper right")
 
     fig.suptitle("Forecast Timeline — Top Series", fontsize=14, fontweight="bold", y=1.01)
