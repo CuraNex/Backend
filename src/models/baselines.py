@@ -35,7 +35,7 @@ class SeasonalNaive:
     def fit(self, df: pd.DataFrame) -> "SeasonalNaive":
         """Store historical demand by (retailer, sku, week_of_year)."""
         for _, row in df.iterrows():
-            key = (row["retailer_id"], row["sku_id"])
+            key = (str(row["retailer_id"]), str(row["sku_id"]))
             week = int(row["week_of_year"])
             
             if key not in self.history:
@@ -52,7 +52,7 @@ class SeasonalNaive:
         predictions = []
         
         for _, row in df.iterrows():
-            key = (row["retailer_id"], row["sku_id"])
+            key = (str(row["retailer_id"]), str(row["sku_id"]))
             week = int(row["week_of_year"])
             
             if key in self.history and week in self.history[key]:

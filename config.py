@@ -13,9 +13,10 @@ SYNTHETIC_DIR = DATA_DIR / "synthetic"
 MODEL_DIR = PROJECT_ROOT / "models_saved"
 PLOTS_DIR = PROJECT_ROOT / "plots"
 MLFLOW_DIR = PROJECT_ROOT / "mlruns"
+EVAL_DIR = PROJECT_ROOT / "evaluation"
 
 # Ensure directories exist
-for d in [SYNTHETIC_DIR, MODEL_DIR, MLFLOW_DIR]:
+for d in [SYNTHETIC_DIR, MODEL_DIR, MLFLOW_DIR, EVAL_DIR]:
     d.mkdir(parents=True, exist_ok=True)
 
 # ── Data Source Paths ──────────────────────────────────────────────────────────

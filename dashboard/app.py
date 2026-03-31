@@ -1,5 +1,5 @@
 """
-PharmaFlow AI — Decision Intelligence Dashboard
+CuraNex AI — Decision Intelligence Dashboard
 =================================================
 Streamlit-based interactive dashboard for pharmaceutical demand forecasting.
 
@@ -30,7 +30,7 @@ import config as cfg
 # ─────────────────────────────────────────────────────────────────────────────
 
 st.set_page_config(
-    page_title="PharmaFlow AI — Demand Intelligence",
+    page_title="CuraNex AI — Demand Intelligence",
     page_icon="💊",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -138,6 +138,25 @@ def load_data():
     if eval_path.exists():
         data["evaluation"] = pd.read_csv(eval_path)
     
+    # Load test predictions and merge into features
+    pred_path = cfg.PROJECT_ROOT / "src" / "evaluation" / "predictions.csv"
+    if pred_path.exists() and "features" in data:
+        try:
+            # We specifically parse dates to ensure merge works cleanly
+            preds = pd.read_csv(pred_path, parse_dates=["date"])
+            
+            if "pred_ensemble" in preds.columns:
+                # Merge the predictions onto the features dataframe
+                # We drop quantity_ordered from preds to avoid duplicate _x, _y columns since features already has it
+                preds_to_merge = preds.drop(columns=["quantity_ordered"], errors="ignore")
+                data["features"] = data["features"].merge(
+                    preds_to_merge, 
+                    on=["retailer_id", "sku_id", "date"], 
+                    how="left"
+                )
+        except Exception as e:
+            st.warning(f"Could not load predictions: {e}")
+            
     return data
 
 
@@ -162,7 +181,7 @@ def render_metric_card(label: str, value: str, delta: str = None, delta_type: st
 # ─────────────────────────────────────────────────────────────────────────────
 
 with st.sidebar:
-    st.markdown("# 💊 PharmaFlow AI")
+    st.markdown("# 💊 CuraNex AI")
     st.markdown("*Demand Intelligence Platform*")
     st.markdown("---")
     
@@ -343,13 +362,55 @@ elif page == "🔍 Forecast Explorer":
     
     col1, col2, col3 = st.columns(3)
     
+    # Build display label lookups from master data
+    retailers_df = data.get("retailers", pd.DataFrame())
+    skus_df = data.get("skus", pd.DataFrame())
+    
+    # Retailer: "Pharmacy Name (SLMC ID)" → retailer_id
+    retailer_id_to_label = {}
+    retailer_label_to_id = {}
+    if "retailer_id" in df.columns:
+        for rid in sorted(df["retailer_id"].unique()):
+            rid_str = str(rid)
+            if len(retailers_df) > 0 and "retailer_name" in retailers_df.columns:
+                match = retailers_df[retailers_df["retailer_id"].astype(str) == rid_str]
+                if len(match) > 0:
+                    name = match.iloc[0]["retailer_name"]
+                    label = f"{name} ({rid_str})"
+                else:
+                    label = rid_str
+            else:
+                label = rid_str
+            retailer_id_to_label[rid] = label
+            retailer_label_to_id[label] = rid
+    
+    # SKU: "Generic Name (NMRA ID)" → sku_id
+    sku_id_to_label = {}
+    sku_label_to_id = {}
+    if "sku_id" in df.columns:
+        for sid in sorted(df["sku_id"].unique()):
+            sid_str = str(sid)
+            if len(skus_df) > 0 and "generic_name" in skus_df.columns:
+                match = skus_df[skus_df["sku_id"].astype(str) == sid_str]
+                if len(match) > 0:
+                    name = match.iloc[0]["generic_name"]
+                    label = f"{name} ({sid_str})"
+                else:
+                    label = sid_str
+            else:
+                label = sid_str
+            sku_id_to_label[sid] = label
+            sku_label_to_id[label] = sid
+    
     with col1:
-        retailers = sorted(df["retailer_id"].unique()) if "retailer_id" in df.columns else []
-        selected_retailer = st.selectbox("Retailer", ["All"] + list(retailers))
+        retailer_labels = sorted(retailer_id_to_label.values())
+        selected_retailer_label = st.selectbox("Retailer", ["All"] + retailer_labels)
+        selected_retailer = retailer_label_to_id.get(selected_retailer_label, "All") if selected_retailer_label != "All" else "All"
     
     with col2:
-        skus = sorted(df["sku_id"].unique()) if "sku_id" in df.columns else []
-        selected_sku = st.selectbox("SKU", ["All"] + list(skus))
+        sku_labels = sorted(sku_id_to_label.values())
+        selected_sku_label = st.selectbox("SKU", ["All"] + sku_labels)
+        selected_sku = sku_label_to_id.get(selected_sku_label, "All") if selected_sku_label != "All" else "All"
     
     with col3:
         categories = sorted(df["therapeutic_category"].unique()) if "therapeutic_category" in df.columns else []
@@ -370,7 +431,27 @@ elif page == "🔍 Forecast Explorer":
     st.markdown('<div class="section-header">📈 Demand Time Series</div>', unsafe_allow_html=True)
     
     if "date" in filtered.columns and len(filtered) > 0:
-        ts = filtered.groupby("date")["quantity_ordered"].sum().reset_index()
+        has_preds = "pred_ensemble" in filtered.columns and filtered["pred_ensemble"].notna().any()
+        
+        # If predictions exist, filter out training data to only show the test period boundary onwards
+        if has_preds:
+            test_start_date = filtered.dropna(subset=["pred_ensemble"])["date"].min()
+            filtered = filtered[filtered["date"] >= test_start_date]
+        
+        has_snaive = "pred_snaive" in filtered.columns and filtered["pred_snaive"].notna().any()
+        
+        # Calculate sums per date. For predictions, if all values are NaN, return NaN instead of 0
+        if has_preds or has_snaive:
+            agg_dict = {"quantity_ordered": ("quantity_ordered", "sum")}
+            if has_preds:
+                agg_dict["pred_ensemble"] = ("pred_ensemble", lambda x: x.sum(min_count=1))
+            if has_snaive:
+                agg_dict["pred_snaive"] = ("pred_snaive", lambda x: x.sum(min_count=1))
+            ts = filtered.groupby("date", as_index=False).agg(**agg_dict)
+        else:
+            ts = filtered.groupby("date", as_index=False).agg(
+                quantity_ordered=("quantity_ordered", "sum")
+            )
         
         fig = go.Figure()
         fig.add_trace(go.Scatter(
@@ -381,14 +462,23 @@ elif page == "🔍 Forecast Explorer":
             marker=dict(size=4),
         ))
         
-        # Add rolling average
-        ts["rolling_avg"] = ts["quantity_ordered"].rolling(4, min_periods=1).mean()
-        fig.add_trace(go.Scatter(
-            x=ts["date"], y=ts["rolling_avg"],
-            mode="lines",
-            name="4-Week Moving Avg",
-            line=dict(color="#FF6B6B", width=2, dash="dash"),
-        ))
+        # Add SNaive Baseline if available
+        if has_snaive:
+            fig.add_trace(go.Scatter(
+                x=ts["date"], y=ts["pred_snaive"],
+                mode="lines",
+                name="SNaïve Baseline",
+                line=dict(color="#FF6B6B", width=2, dash="dash"),
+            ))
+        
+        # Add AI Forecast if available
+        if has_preds:
+            fig.add_trace(go.Scatter(
+                x=ts["date"], y=ts["pred_ensemble"],
+                mode="lines",
+                name="AI Ensemble Forecast",
+                line=dict(color="#FFD700", width=3, dash="dot"),
+            ))
         
         fig.update_layout(
             template="plotly_dark",
@@ -652,11 +742,31 @@ elif page == "📋 Recommendations":
         
         # Filters
         col1, col2 = st.columns(2)
+        
+        # Build retailer label lookup for this page
+        retailers_df = data.get("retailers", pd.DataFrame())
+        rec_retailer_labels = {}
+        rec_label_to_id = {}
+        for rid in sorted(recommendations["retailer_id"].unique()):
+            rid_str = str(rid)
+            if len(retailers_df) > 0 and "retailer_name" in retailers_df.columns:
+                match = retailers_df[retailers_df["retailer_id"].astype(str) == rid_str]
+                if len(match) > 0:
+                    label = f"{match.iloc[0]['retailer_name']} ({rid_str})"
+                else:
+                    label = rid_str
+            else:
+                label = rid_str
+            rec_retailer_labels[rid] = label
+            rec_label_to_id[label] = rid
+        
         with col1:
-            retailer_filter = st.selectbox(
+            retailer_labels_list = sorted(rec_retailer_labels.values())
+            retailer_filter_label = st.selectbox(
                 "Filter by Retailer",
-                ["All"] + sorted(recommendations["retailer_id"].unique().tolist()),
+                ["All"] + retailer_labels_list,
             )
+            retailer_filter = rec_label_to_id.get(retailer_filter_label, "All") if retailer_filter_label != "All" else "All"
         with col2:
             critical_only = st.checkbox("Critical SKUs Only", value=False)
         
@@ -716,7 +826,7 @@ elif page == "📋 Recommendations":
 st.markdown("---")
 st.markdown(
     '<div style="text-align: center; color: #455A64; font-size: 0.8rem;">'
-    'PharmaFlow AI — Hybrid Ensemble Demand Forecasting | AITHON 2026 | Hemas Pharmaceuticals'
+    'CuraNex AI — Hybrid Ensemble Demand Forecasting | AITHON 2026 | Hemas Pharmaceuticals'
     '</div>',
     unsafe_allow_html=True,
 )
