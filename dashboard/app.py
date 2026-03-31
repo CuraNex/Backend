@@ -138,6 +138,25 @@ def load_data():
     if eval_path.exists():
         data["evaluation"] = pd.read_csv(eval_path)
     
+    # Load test predictions and merge into features
+    pred_path = cfg.PROJECT_ROOT / "src" / "evaluation" / "predictions.csv"
+    if pred_path.exists() and "features" in data:
+        try:
+            # We specifically parse dates to ensure merge works cleanly
+            preds = pd.read_csv(pred_path, parse_dates=["date"])
+            
+            if "pred_ensemble" in preds.columns:
+                # Merge the predictions onto the features dataframe
+                # We drop quantity_ordered from preds to avoid duplicate _x, _y columns since features already has it
+                preds_to_merge = preds.drop(columns=["quantity_ordered"], errors="ignore")
+                data["features"] = data["features"].merge(
+                    preds_to_merge, 
+                    on=["retailer_id", "sku_id", "date"], 
+                    how="left"
+                )
+        except Exception as e:
+            st.warning(f"Could not load predictions: {e}")
+            
     return data
 
 
@@ -412,7 +431,27 @@ elif page == "🔍 Forecast Explorer":
     st.markdown('<div class="section-header">📈 Demand Time Series</div>', unsafe_allow_html=True)
     
     if "date" in filtered.columns and len(filtered) > 0:
-        ts = filtered.groupby("date")["quantity_ordered"].sum().reset_index()
+        has_preds = "pred_ensemble" in filtered.columns and filtered["pred_ensemble"].notna().any()
+        
+        # If predictions exist, filter out training data to only show the test period boundary onwards
+        if has_preds:
+            test_start_date = filtered.dropna(subset=["pred_ensemble"])["date"].min()
+            filtered = filtered[filtered["date"] >= test_start_date]
+        
+        has_snaive = "pred_snaive" in filtered.columns and filtered["pred_snaive"].notna().any()
+        
+        # Calculate sums per date. For predictions, if all values are NaN, return NaN instead of 0
+        if has_preds or has_snaive:
+            agg_dict = {"quantity_ordered": ("quantity_ordered", "sum")}
+            if has_preds:
+                agg_dict["pred_ensemble"] = ("pred_ensemble", lambda x: x.sum(min_count=1))
+            if has_snaive:
+                agg_dict["pred_snaive"] = ("pred_snaive", lambda x: x.sum(min_count=1))
+            ts = filtered.groupby("date", as_index=False).agg(**agg_dict)
+        else:
+            ts = filtered.groupby("date", as_index=False).agg(
+                quantity_ordered=("quantity_ordered", "sum")
+            )
         
         fig = go.Figure()
         fig.add_trace(go.Scatter(
@@ -423,14 +462,23 @@ elif page == "🔍 Forecast Explorer":
             marker=dict(size=4),
         ))
         
-        # Add rolling average
-        ts["rolling_avg"] = ts["quantity_ordered"].rolling(4, min_periods=1).mean()
-        fig.add_trace(go.Scatter(
-            x=ts["date"], y=ts["rolling_avg"],
-            mode="lines",
-            name="4-Week Moving Avg",
-            line=dict(color="#FF6B6B", width=2, dash="dash"),
-        ))
+        # Add SNaive Baseline if available
+        if has_snaive:
+            fig.add_trace(go.Scatter(
+                x=ts["date"], y=ts["pred_snaive"],
+                mode="lines",
+                name="SNaïve Baseline",
+                line=dict(color="#FF6B6B", width=2, dash="dash"),
+            ))
+        
+        # Add AI Forecast if available
+        if has_preds:
+            fig.add_trace(go.Scatter(
+                x=ts["date"], y=ts["pred_ensemble"],
+                mode="lines",
+                name="AI Ensemble Forecast",
+                line=dict(color="#FFD700", width=3, dash="dot"),
+            ))
         
         fig.update_layout(
             template="plotly_dark",
