@@ -3,6 +3,9 @@
 # Data
 data/synthetic/*.parquet
 
+# Large feature file
+data/synthetic/features.csv
+
 # Models
 models_saved/
 mlruns/
