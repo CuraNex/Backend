@@ -343,13 +343,55 @@ elif page == "🔍 Forecast Explorer":
     
     col1, col2, col3 = st.columns(3)
     
+    # Build display label lookups from master data
+    retailers_df = data.get("retailers", pd.DataFrame())
+    skus_df = data.get("skus", pd.DataFrame())
+    
+    # Retailer: "Pharmacy Name (SLMC ID)" → retailer_id
+    retailer_id_to_label = {}
+    retailer_label_to_id = {}
+    if "retailer_id" in df.columns:
+        for rid in sorted(df["retailer_id"].unique()):
+            rid_str = str(rid)
+            if len(retailers_df) > 0 and "retailer_name" in retailers_df.columns:
+                match = retailers_df[retailers_df["retailer_id"].astype(str) == rid_str]
+                if len(match) > 0:
+                    name = match.iloc[0]["retailer_name"]
+                    label = f"{name} ({rid_str})"
+                else:
+                    label = rid_str
+            else:
+                label = rid_str
+            retailer_id_to_label[rid] = label
+            retailer_label_to_id[label] = rid
+    
+    # SKU: "Generic Name (NMRA ID)" → sku_id
+    sku_id_to_label = {}
+    sku_label_to_id = {}
+    if "sku_id" in df.columns:
+        for sid in sorted(df["sku_id"].unique()):
+            sid_str = str(sid)
+            if len(skus_df) > 0 and "generic_name" in skus_df.columns:
+                match = skus_df[skus_df["sku_id"].astype(str) == sid_str]
+                if len(match) > 0:
+                    name = match.iloc[0]["generic_name"]
+                    label = f"{name} ({sid_str})"
+                else:
+                    label = sid_str
+            else:
+                label = sid_str
+            sku_id_to_label[sid] = label
+            sku_label_to_id[label] = sid
+    
     with col1:
-        retailers = sorted(df["retailer_id"].unique()) if "retailer_id" in df.columns else []
-        selected_retailer = st.selectbox("Retailer", ["All"] + list(retailers))
+        retailer_labels = sorted(retailer_id_to_label.values())
+        selected_retailer_label = st.selectbox("Retailer", ["All"] + retailer_labels)
+        selected_retailer = retailer_label_to_id.get(selected_retailer_label, "All") if selected_retailer_label != "All" else "All"
     
     with col2:
-        skus = sorted(df["sku_id"].unique()) if "sku_id" in df.columns else []
-        selected_sku = st.selectbox("SKU", ["All"] + list(skus))
+        sku_labels = sorted(sku_id_to_label.values())
+        selected_sku_label = st.selectbox("SKU", ["All"] + sku_labels)
+        selected_sku = sku_label_to_id.get(selected_sku_label, "All") if selected_sku_label != "All" else "All"
     
     with col3:
         categories = sorted(df["therapeutic_category"].unique()) if "therapeutic_category" in df.columns else []
@@ -652,11 +694,31 @@ elif page == "📋 Recommendations":
         
         # Filters
         col1, col2 = st.columns(2)
+        
+        # Build retailer label lookup for this page
+        retailers_df = data.get("retailers", pd.DataFrame())
+        rec_retailer_labels = {}
+        rec_label_to_id = {}
+        for rid in sorted(recommendations["retailer_id"].unique()):
+            rid_str = str(rid)
+            if len(retailers_df) > 0 and "retailer_name" in retailers_df.columns:
+                match = retailers_df[retailers_df["retailer_id"].astype(str) == rid_str]
+                if len(match) > 0:
+                    label = f"{match.iloc[0]['retailer_name']} ({rid_str})"
+                else:
+                    label = rid_str
+            else:
+                label = rid_str
+            rec_retailer_labels[rid] = label
+            rec_label_to_id[label] = rid
+        
         with col1:
-            retailer_filter = st.selectbox(
+            retailer_labels_list = sorted(rec_retailer_labels.values())
+            retailer_filter_label = st.selectbox(
                 "Filter by Retailer",
-                ["All"] + sorted(recommendations["retailer_id"].unique().tolist()),
+                ["All"] + retailer_labels_list,
             )
+            retailer_filter = rec_label_to_id.get(retailer_filter_label, "All") if retailer_filter_label != "All" else "All"
         with col2:
             critical_only = st.checkbox("Critical SKUs Only", value=False)
         
