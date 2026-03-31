@@ -1,5 +1,5 @@
 """
-PharmaFlow AI — Decision Intelligence Dashboard
+CuraNex AI — Decision Intelligence Dashboard
 =================================================
 Streamlit-based interactive dashboard for pharmaceutical demand forecasting.
 
@@ -30,7 +30,7 @@ import config as cfg
 # ─────────────────────────────────────────────────────────────────────────────
 
 st.set_page_config(
-    page_title="PharmaFlow AI — Demand Intelligence",
+    page_title="CuraNex AI — Demand Intelligence",
     page_icon="💊",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -162,7 +162,7 @@ def render_metric_card(label: str, value: str, delta: str = None, delta_type: st
 # ─────────────────────────────────────────────────────────────────────────────
 
 with st.sidebar:
-    st.markdown("# 💊 PharmaFlow AI")
+    st.markdown("# 💊 CuraNex AI")
     st.markdown("*Demand Intelligence Platform*")
     st.markdown("---")
     
@@ -716,7 +716,7 @@ elif page == "📋 Recommendations":
 st.markdown("---")
 st.markdown(
     '<div style="text-align: center; color: #455A64; font-size: 0.8rem;">'
-    'PharmaFlow AI — Hybrid Ensemble Demand Forecasting | AITHON 2026 | Hemas Pharmaceuticals'
+    'CuraNex AI — Hybrid Ensemble Demand Forecasting | AITHON 2026 | Hemas Pharmaceuticals'
     '</div>',
     unsafe_allow_html=True,
 )
