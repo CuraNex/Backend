@@ -88,7 +88,7 @@ class AppState:
                 self._data[name] = pd.read_csv(path)
         
         # Load evaluation
-        eval_path = cfg.MODEL_DIR / "evaluation_report.csv"
+        eval_path = cfg.EVAL_DIR / "eval.csv"
         if eval_path.exists():
             self._data["evaluation"] = pd.read_csv(eval_path)
         

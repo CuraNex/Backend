@@ -535,7 +535,7 @@ def run_pipeline(
         save_models(all_models, ensemble)
         
         # Save evaluation results
-        eval_path = cfg.MODEL_DIR / "evaluation_report.csv"
+        eval_path = cfg.EVAL_DIR / "evaluation_report.csv"
         if "comparison" in evaluation:
             evaluation["comparison"].to_csv(eval_path, index=False)
             logger.info(f"Saved evaluation report → {eval_path}")

@@ -134,12 +134,12 @@ def load_data():
             data[name] = pd.read_csv(path, parse_dates=parse)
     
     # Load evaluation report
-    eval_path = cfg.MODEL_DIR / "evaluation_report.csv"
+    eval_path = cfg.EVAL_DIR / "evaluation_report.csv"
     if eval_path.exists():
         data["evaluation"] = pd.read_csv(eval_path)
     
     # Load test predictions and merge into features
-    pred_path = cfg.PROJECT_ROOT / "src" / "evaluation" / "predictions.csv"
+    pred_path = cfg.EVAL_DIR / "predictions.csv"
     if pred_path.exists() and "features" in data:
         try:
             # We specifically parse dates to ensure merge works cleanly
