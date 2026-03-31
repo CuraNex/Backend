@@ -1,4 +1,4 @@
-# PharmaFlow AI — .gitignore
+# CuraNex AI — .gitignore
 
 # Data
 data/synthetic/*.parquet
@@ -15,7 +15,9 @@ __pycache__/
 *.egg-info/
 dist/
 build/
-pipeline/lightning_logs
+
+# PyTorch Lightning logs
+lightning_logs/
 
 # Virtual environments
 venv/
