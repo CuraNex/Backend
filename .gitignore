@@ -15,6 +15,7 @@ __pycache__/
 *.egg-info/
 dist/
 build/
+pipeline/lightning_logs
 
 # Virtual environments
 venv/
