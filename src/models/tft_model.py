@@ -56,7 +56,7 @@ class TFTForecaster:
         - Additional columns as exogenous variables
         """
         nf_df = df.copy()
-        nf_df["unique_id"] = nf_df["retailer_id"] + "_" + nf_df["sku_id"]
+        nf_df["unique_id"] = [f"{r}_{s}" for r, s in zip(nf_df["retailer_id"], nf_df["sku_id"])]
         nf_df = nf_df.rename(columns={"date": "ds", target: "y"})
         nf_df["ds"] = pd.to_datetime(nf_df["ds"])
         nf_df = nf_df.sort_values(["unique_id", "ds"])
@@ -110,6 +110,13 @@ class TFTForecaster:
         logger.info(f"[{self.name}] Preparing data for TFT...")
         
         nf_train = self._prepare_data(df_train, target)
+        
+        val_size = 0
+        if df_val is not None:
+            nf_val = self._prepare_data(df_val, target)
+            val_size = nf_val["ds"].nunique()
+            nf_train = pd.concat([nf_train, nf_val]).reset_index(drop=True)
+            logger.info(f"[{self.name}] Enrolled validation set with val_size={val_size}. Early stopping enabled.")
         
         # Limit series count for feasibility
         unique_ids = nf_train["unique_id"].unique()
@@ -171,6 +178,8 @@ class TFTForecaster:
             n_head=self.params.get("n_head", 4),
             learning_rate=self.params.get("learning_rate", 1e-3),
             max_steps=self.params.get("max_steps", 500),
+            val_check_steps=self.params.get("val_check_steps", 50),
+            early_stop_patience_steps=self.params.get("early_stop_patience", 10),
             batch_size=self.params.get("batch_size", 64),
             windows_batch_size=self.params.get("windows_batch_size", 256),
             scaler_type=self.params.get("scaler_type", "robust"),
@@ -185,7 +194,7 @@ class TFTForecaster:
         self.nf = NeuralForecast(models=[tft], freq="W-MON")
         
         logger.info(f"[{self.name}] Starting TFT training...")
-        self.nf.fit(df=nf_train, static_df=static_df)
+        self.nf.fit(df=nf_train, static_df=static_df, val_size=val_size)
         
         logger.info(f"[{self.name}] TFT training complete!")
         return self

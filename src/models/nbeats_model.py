@@ -46,7 +46,7 @@ class NBEATSForecaster:
     def _prepare_data(self, df: pd.DataFrame, target: str = "quantity_ordered") -> pd.DataFrame:
         """Convert to NeuralForecast format (univariate — only unique_id, ds, y)."""
         nf_df = df.copy()
-        nf_df["unique_id"] = nf_df["retailer_id"] + "_" + nf_df["sku_id"]
+        nf_df["unique_id"] = [f"{r}_{s}" for r, s in zip(nf_df["retailer_id"], nf_df["sku_id"])]
         nf_df = nf_df.rename(columns={"date": "ds", target: "y"})
         nf_df["ds"] = pd.to_datetime(nf_df["ds"])
         nf_df = nf_df[["unique_id", "ds", "y"]].sort_values(["unique_id", "ds"])
@@ -55,6 +55,7 @@ class NBEATSForecaster:
     def train(
         self,
         df_train: pd.DataFrame,
+        df_val: pd.DataFrame = None,
         target: str = "quantity_ordered",
         max_series: int = 100000000000,
     ) -> "NBEATSForecaster":
@@ -72,6 +73,13 @@ class NBEATSForecaster:
             raise
         
         nf_train = self._prepare_data(df_train, target)
+        
+        val_size = 0
+        if df_val is not None:
+            nf_val = self._prepare_data(df_val, target)
+            val_size = nf_val["ds"].nunique()
+            nf_train = pd.concat([nf_train, nf_val]).reset_index(drop=True)
+            logger.info(f"[{self.name}] Enrolled validation set with val_size={val_size}. Early stopping enabled.")
         
         # Filter to viable series
         min_len = self.params.get("input_size", 52) + self.params.get("h", 13)
@@ -95,6 +103,8 @@ class NBEATSForecaster:
             mlp_units=self.params.get("mlp_units", [[256, 256], [256, 256]]),
             learning_rate=self.params.get("learning_rate", 1e-3),
             max_steps=self.params.get("max_steps", 500),
+            val_check_steps=self.params.get("val_check_steps", 50),
+            early_stop_patience_steps=self.params.get("early_stop_patience", 10),
             batch_size=self.params.get("batch_size", 64),
             windows_batch_size=self.params.get("windows_batch_size", 256),
             scaler_type=self.params.get("scaler_type", "robust"),
@@ -106,7 +116,7 @@ class NBEATSForecaster:
         self.nf = NeuralForecast(models=[nbeats], freq="W-MON")
         
         logger.info(f"[{self.name}] Starting N-BEATS training...")
-        self.nf.fit(df=nf_train)
+        self.nf.fit(df=nf_train, val_size=val_size)
         logger.info(f"[{self.name}] N-BEATS training complete!")
         
         return self

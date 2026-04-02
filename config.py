@@ -193,7 +193,7 @@ TFT_PARAMS = {
     "hidden_size": 64,
     "n_head": 4,
     "learning_rate": 1e-3,
-    "max_steps": 500,
+    "max_steps": 3000,
     "batch_size": 64,
     "windows_batch_size": 256,
     "scaler_type": "robust",
@@ -206,7 +206,7 @@ NBEATS_PARAMS = {
     "n_blocks": [3, 3],        # trend + seasonality stacks
     "mlp_units": [[256, 256], [256, 256]],
     "learning_rate": 1e-3,
-    "max_steps": 500,
+    "max_steps": 3000,
     "batch_size": 64,
     "windows_batch_size": 256,
     "scaler_type": "robust",
@@ -214,7 +214,7 @@ NBEATS_PARAMS = {
 }
 
 # Ensemble
-ENSEMBLE_META_LEARNER = "ridge"  # "ridge" or "lightgbm"
+ENSEMBLE_META_LEARNER = "lightgbm"  # "ridge" or "lightgbm"
 ENSEMBLE_RIDGE_ALPHA = 1.0
 
 # Cold Start

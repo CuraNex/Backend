@@ -152,6 +152,33 @@ def generate_predictions(
         except Exception as e:
             logger.warning(f"  seasonal_naive prediction failed: {e}")
 
+    # ── Neural models (TFT / N-BEATS) ──
+    if split_name in ["val", "test"]:
+        try:
+            from src.utils.neural_inference import extract_median, align_to_split, generate_rolling_predictions
+            
+            if split_name == "val":
+                df_history = splits["df_train"]
+            else:  # test
+                df_history = pd.concat([splits["df_train"], splits["df_val"]])
+                
+            for name in ["tft", "nbeats"]:
+                if name in models:
+                    try:
+                        logger.info(f"  {name}: generating auto-regressive predictions for {split_name}...")
+                        raw_preds = generate_rolling_predictions(models[name], df_history, df_split)
+                        
+                        if raw_preds is not None and len(raw_preds) > 0:
+                            preds_df = extract_median(raw_preds, name.upper())
+                            if preds_df is not None:
+                                aligned = align_to_split(preds_df, df_split, len(y))
+                                predictions[name] = aligned
+                                logger.info(f"  {name}: predicted {len(aligned):,} samples")
+                    except Exception as e:
+                        logger.warning(f"  {name} auto-regressive prediction failed: {e}")
+        except Exception as e:
+            logger.warning(f"  Failed to run neural inference: {e}")
+
     # ── Ensemble meta-learner ──
     if "ensemble" in models and len(predictions) >= 2:
         try:
