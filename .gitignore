@@ -5,7 +5,7 @@ data/synthetic/*.parquet
 data/synthetic/features.csv
 
 # Models
-models_saved/
+# models_saved/
 mlruns/
 
 # Python
