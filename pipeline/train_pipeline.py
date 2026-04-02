@@ -150,57 +150,7 @@ def train_neural_models(splits: dict) -> dict:
     """
     models = {}
     predictions = {}
-    
-    def _extract_median(forecasts, model_name):
-        """Extract the median/point prediction column from NeuralForecast output."""
-        median_col = [c for c in forecasts.columns if "median" in c.lower() or c == model_name]
-        if median_col:
-            cols = ["unique_id", median_col[0]]
-            if "ds" in forecasts.columns:
-                cols = ["unique_id", "ds", median_col[0]]
-            return forecasts[cols].rename(columns={median_col[0]: "pred"})
-        return None
-    
-    def _align_to_split(neural_preds_df, split_df, n_expected):
-        """
-        Map neural predictions back to the full split index.
-        
-        Strategy:
-        1. Try matching by (unique_id, ds) for exact date alignment
-        2. Fall back to per-series mean if dates don't match
-        
-        Returns: np.array of length n_expected, with 0 for unmatched rows.
-        """
-        # Build lookup keys from the split DataFrame
-        split_uids = (split_df["retailer_id"].astype(str) + "_" + split_df["sku_id"].astype(str)).values[:n_expected]
-        split_dates = pd.to_datetime(split_df["date"]).values[:n_expected]
-        
-        result = np.zeros(n_expected)
-        
-        # Strategy 1: exact (unique_id, ds) match
-        if "ds" in neural_preds_df.columns:
-            neural_preds_df = neural_preds_df.copy()
-            neural_preds_df["ds"] = pd.to_datetime(neural_preds_df["ds"])
-            lookup = neural_preds_df.set_index(["unique_id", "ds"])["pred"]
-            
-            for i in range(n_expected):
-                key = (split_uids[i], split_dates[i])
-                if key in lookup.index:
-                    result[i] = lookup[key]
-        
-        n_date_matched = (result != 0).sum()
-        
-        # Strategy 2: for unmatched rows, use per-series mean
-        if n_date_matched < n_expected:
-            avg_by_id = neural_preds_df.groupby("unique_id")["pred"].mean()
-            for i in range(n_expected):
-                if result[i] == 0 and split_uids[i] in avg_by_id.index:
-                    result[i] = avg_by_id[split_uids[i]]
-        
-        n_total_matched = (result != 0).sum()
-        logger.info(f"  Aligned {n_total_matched:,}/{n_expected:,} predictions "
-                    f"({n_date_matched:,} by date, {n_total_matched - n_date_matched:,} by series mean)")
-        return result
+    from src.utils.neural_inference import extract_median, align_to_split, generate_rolling_predictions
     
     # ── TFT ──
     try:
@@ -211,25 +161,26 @@ def train_neural_models(splits: dict) -> dict:
         logger.info("━" * 60)
         
         tft = TFTForecaster(name="tft")
-        tft.train(splits["df_train"], max_series=1000000000)
+        tft.train(splits["df_train"], df_val=splits["df_val"], max_series=1000000000)
         
         # Val predictions
-        tft_val = tft.predict(splits["df_val"])
+        tft_val = generate_rolling_predictions(tft, splits["df_train"], splits["df_val"])
         if tft_val is not None and len(tft_val) > 0:
-            preds_df = _extract_median(tft_val, "TFT")
+            preds_df = extract_median(tft_val, "TFT")
             if preds_df is not None:
                 models["tft"] = tft
-                predictions["tft_val"] = _align_to_split(
+                predictions["tft_val"] = align_to_split(
                     preds_df, splits["df_val"], len(splits["y_val"])
                 )
                 
                 # Test predictions
                 try:
-                    tft_test = tft.predict(splits["df_test"])
+                    df_history_for_test = pd.concat([splits["df_train"], splits["df_val"]])
+                    tft_test = generate_rolling_predictions(tft, df_history_for_test, splits["df_test"])
                     if tft_test is not None and len(tft_test) > 0:
-                        test_df = _extract_median(tft_test, "TFT")
+                        test_df = extract_median(tft_test, "TFT")
                         if test_df is not None:
-                            predictions["tft_test"] = _align_to_split(
+                            predictions["tft_test"] = align_to_split(
                                 test_df, splits["df_test"], len(splits["y_test"])
                             )
                 except Exception as e:
@@ -247,25 +198,26 @@ def train_neural_models(splits: dict) -> dict:
         logger.info("━" * 60)
         
         nbeats = NBEATSForecaster(name="nbeats")
-        nbeats.train(splits["df_train"], max_series=1000000000)
+        nbeats.train(splits["df_train"], df_val=splits["df_val"], max_series=1000000000)
         
         # Val predictions
-        nbeats_val = nbeats.predict(splits["df_val"])
+        nbeats_val = generate_rolling_predictions(nbeats, splits["df_train"], splits["df_val"])
         if nbeats_val is not None and len(nbeats_val) > 0:
-            preds_df = _extract_median(nbeats_val, "NBEATS")
+            preds_df = extract_median(nbeats_val, "NBEATS")
             if preds_df is not None:
                 models["nbeats"] = nbeats
-                predictions["nbeats_val"] = _align_to_split(
+                predictions["nbeats_val"] = align_to_split(
                     preds_df, splits["df_val"], len(splits["y_val"])
                 )
                 
                 # Test predictions
                 try:
-                    nbeats_test = nbeats.predict(splits["df_test"])
+                    df_history_for_test = pd.concat([splits["df_train"], splits["df_val"]])
+                    nbeats_test = generate_rolling_predictions(nbeats, df_history_for_test, splits["df_test"])
                     if nbeats_test is not None and len(nbeats_test) > 0:
-                        test_df = _extract_median(nbeats_test, "NBEATS")
+                        test_df = extract_median(nbeats_test, "NBEATS")
                         if test_df is not None:
-                            predictions["nbeats_test"] = _align_to_split(
+                            predictions["nbeats_test"] = align_to_split(
                                 test_df, splits["df_test"], len(splits["y_test"])
                             )
                 except Exception as e:
