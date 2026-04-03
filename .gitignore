@@ -3,6 +3,7 @@
 # Data
 data/synthetic/*.parquet
 data/synthetic/features.csv
+data/forecast/features.csv
 
 # Models
 # models_saved/

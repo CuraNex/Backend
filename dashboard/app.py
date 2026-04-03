@@ -155,7 +155,16 @@ def load_data():
                     how="left"
                 )
         except Exception as e:
-            st.warning(f"Could not load predictions: {e}")
+            st.warning(f"Could not load historical predictions: {e}")
+            
+    # Load true future predictions
+    future_pred_path = cfg.EVAL_DIR / "forecasts.csv"
+    if future_pred_path.exists():
+        try:
+            future_preds = pd.read_csv(future_pred_path, parse_dates=["date"])
+            data["future_predictions"] = future_preds
+        except Exception as e:
+            st.warning(f"Could not load future forecasts: {e}")
             
     return data
 
@@ -250,10 +259,35 @@ if page == "📊 Overview":
         
         if "date" in df.columns and "quantity_ordered" in df.columns:
             weekly = df.groupby("date")["quantity_ordered"].sum().reset_index()
-            fig = px.area(
-                weekly, x="date", y="quantity_ordered",
-                color_discrete_sequence=["#3a7bd5"],
-            )
+            
+            fig = go.Figure()
+            fig.add_trace(go.Scatter(
+                x=weekly["date"], y=weekly["quantity_ordered"],
+                mode="lines",
+                name="Historical Demand",
+                fill="tozeroy",
+                line=dict(color="#3a7bd5", width=2),
+                fillcolor="rgba(58,123,213,0.2)"
+            ))
+            
+            future_preds = data.get("future_predictions")
+            if future_preds is not None and not future_preds.empty:
+                wk_future = future_preds.groupby("date")["pred_ensemble"].sum().reset_index()
+                
+                # Prepend the last boundary point of historical actuals to seamlessly connect the traces
+                last_hist_point = pd.DataFrame({
+                    "date": [weekly["date"].iloc[-1]],
+                    "pred_ensemble": [weekly["quantity_ordered"].iloc[-1]]
+                })
+                wk_future = pd.concat([last_hist_point, wk_future], ignore_index=True)
+                
+                fig.add_trace(go.Scatter(
+                    x=wk_future["date"], y=wk_future["pred_ensemble"],
+                    mode="lines",
+                    name="Future Projection (4 Weeks)",
+                    line=dict(color="#00E396", width=3, dash="solid"),
+                ))
+                
             fig.update_layout(
                 template="plotly_dark",
                 paper_bgcolor="rgba(0,0,0,0)",
@@ -261,11 +295,7 @@ if page == "📊 Overview":
                 xaxis_title="", yaxis_title="Total Quantity Ordered",
                 height=350,
                 margin=dict(l=20, r=20, t=10, b=20),
-            )
-            fig.update_traces(
-                fill="tozeroy",
-                line=dict(width=2),
-                fillcolor="rgba(58,123,213,0.2)",
+                legend=dict(orientation="h", yanchor="bottom", y=1.02)
             )
             st.plotly_chart(fig, use_container_width=True)
     
@@ -471,14 +501,54 @@ elif page == "🔍 Forecast Explorer":
                 line=dict(color="#FF6B6B", width=2, dash="dash"),
             ))
         
-        # Add AI Forecast if available
+        # Add Historical AI Validation Forecast if available
         if has_preds:
             fig.add_trace(go.Scatter(
                 x=ts["date"], y=ts["pred_ensemble"],
                 mode="lines",
-                name="AI Ensemble Forecast",
+                name="Historical Validation Forecast",
                 line=dict(color="#FFD700", width=3, dash="dot"),
             ))
+            
+        # Add True Future Exploration
+        future_preds = data.get("future_predictions")
+        if future_preds is not None and not future_preds.empty:
+            fut_filtered = future_preds.copy()
+            if selected_retailer != "All":
+                fut_filtered = fut_filtered[fut_filtered["retailer_id"] == selected_retailer]
+            if selected_sku != "All":
+                fut_filtered = fut_filtered[fut_filtered["sku_id"] == selected_sku]
+            
+            # Note: Category is not inside future predictions trivially if we didn't join it back in yet.
+            if selected_cat != "All":
+                # Only filter if therapeutic category is present!
+                if "therapeutic_category" in fut_filtered.columns:
+                    fut_filtered = fut_filtered[fut_filtered["therapeutic_category"] == selected_cat]
+            
+            if len(fut_filtered) > 0:
+                fut_ts = fut_filtered.groupby("date", as_index=False)["pred_ensemble"].sum()
+                
+                # Prepend the final Historical AI Validation point to physically connect the graphs
+                if has_preds and len(ts) > 0:
+                    last_val_point = pd.DataFrame({
+                        "date": [ts["date"].iloc[-1]],
+                        "pred_ensemble": [ts["pred_ensemble"].iloc[-1]]
+                    })
+                    fut_ts = pd.concat([last_val_point, fut_ts], ignore_index=True)
+                elif len(ts) > 0:
+                    # If AI wasn't run on validation, connect straight to actuals
+                    last_val_point = pd.DataFrame({
+                        "date": [ts["date"].iloc[-1]],
+                        "pred_ensemble": [ts["quantity_ordered"].iloc[-1]]
+                    })
+                    fut_ts = pd.concat([last_val_point, fut_ts], ignore_index=True)
+
+                fig.add_trace(go.Scatter(
+                    x=fut_ts["date"], y=fut_ts["pred_ensemble"],
+                    mode="lines",
+                    name="Future Extrapolation (4 Weeks)",
+                    line=dict(color="#00E396", width=4, dash="solid"),
+                ))
         
         fig.update_layout(
             template="plotly_dark",

@@ -330,6 +330,7 @@ def build_features(
     skus: pd.DataFrame,
     calendar: pd.DataFrame,
     health_signals: pd.DataFrame,
+    drop_na_lags: bool = True
 ) -> pd.DataFrame:
     """
     Full feature engineering pipeline.
@@ -377,14 +378,16 @@ def build_features(
     # Drop rows with NaN in critical lag features
     initial_len = len(df)
     feature_cols = get_feature_columns()["all"]
-    df = df.dropna(subset=[f"lag_{cfg.LAG_WEEKS[0]}w"])
+    if drop_na_lags:
+        df = df.dropna(subset=[f"lag_{cfg.LAG_WEEKS[0]}w"])
 
     # Fill remaining NaNs in features with 0
     for col in feature_cols:
         if col in df.columns:
             df[col] = df[col].fillna(0)
 
-    logger.info(f"Dropped {initial_len - len(df):,} rows with insufficient history")
+    if drop_na_lags:
+        logger.info(f"Dropped {initial_len - len(df):,} rows with insufficient history")
     logger.info(f"Final dataset: {len(df):,} rows, {len(df.columns)} columns")
     logger.info("=" * 60)
     logger.info("Feature Engineering Complete!")

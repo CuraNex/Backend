@@ -1,0 +1,501 @@
+retailer_id,retailer_name,retailer_type,district,tier,years_active
+6977,Osanda Pharmacy,standalone,Ampara,C,17
+8471,Medicare Pharmacy,standalone,Ampara,C,14
+8582,Aboo Pharmacy,standalone,Ampara,C,12
+8918,Lanka Pharmacy,standalone,Ampara,C,11
+9607,Mahaoya Pharmacy,standalone,Ampara,C,9
+9683,Well Care Pharmacy,standalone,Ampara,C,9
+4033,Dilani Pharmacy,standalone,Anuradhapura,B,25
+5887,Suwa Medura Pharmacy,standalone,Anuradhapura,C,21
+6168,Rajya Osusala Anuradhapura,chain_outlet,Anuradhapura,A,20
+6306,Dulan Pharmacy,standalone,Anuradhapura,C,19
+6637,Medi Zone Pharmacy,standalone,Anuradhapura,C,18
+7627,M. K Pharmacy,standalone,Anuradhapura,C,16
+8060,Shehan Pharmacy and Grocery,standalone,Anuradhapura,C,15
+12562,Queens Pharmacy,standalone,Anuradhapura,C,2
+3524,Sri Saai Medicals Pharmacy,standalone,Badulla,B,26
+3775,Thilakna Pharmacy,standalone,Badulla,B,25
+4692,Suwasetha Pharmacy,standalone,Badulla,B,24
+6592,Mahajana Pharmacy,standalone,Badulla,C,18
+7547,The Badulla Apothecaries Pharmacy,standalone,Badulla,C,15
+8419,New Manoja Pharmacy,standalone,Badulla,C,13
+8945,Gayani Osusala,standalone,Badulla,C,13
+10970,Luckieland Pharmacy,standalone,Badulla,C,6
+12609,Witny Pharmacy,standalone,Badulla,C,3
+1594,Eastern Medical Pharmacy,standalone,Batticaloa,B,30
+3884,Surya Pharmacy,standalone,Batticaloa,B,24
+10596,Parath Pharmacy and Groceries,standalone,Batticaloa,C,7
+11475,Shakthi Medical Pharmacy,standalone,Batticaloa,C,5
+1493,S. V Pharmacy,standalone,Colombo,A,31
+1647,Victory Pharmacy,standalone,Colombo,A,30
+1730,Elite Pharmacy,standalone,Colombo,A,30
+1871,Central Pharmacy Koswatta,standalone,Colombo,A,31
+2149,Sri Csres Pharma PVT Ltd,standalone,Colombo,A,29
+2318,New Lanka Pharmacy,standalone,Colombo,A,29
+2444,W & W Medicals Pharmacy,standalone,Colombo,A,30
+2514,Sethruwa Pharmacy,standalone,Colombo,A,29
+2542,Maura Phama,standalone,Colombo,A,30
+2618,Mega Drugs Pharmacy,standalone,Colombo,A,28
+2656,S K S Pharmacy,standalone,Colombo,A,28
+2692,Okmed Pharmacy,standalone,Colombo,A,27
+2755,Lakmini Pharmacy,standalone,Colombo,A,28
+2812,Methsuwa Pharmacy,standalone,Colombo,A,29
+2850,Asiri Pharmacy,chain_outlet,Colombo,A,29
+2864,Green I Pharmacy,standalone,Colombo,A,27
+2895,Sasindu Pharmacy,standalone,Colombo,A,28
+2945,Laugfs Supermarkets Pharmacy,chain_outlet,Colombo,A,26
+3059,Randunu Pharmacy & Grocery,standalone,Colombo,A,28
+3179,Superior Health Pharmacy,standalone,Colombo,A,27
+3186,Medo Pharmacy and Grocery,standalone,Colombo,A,27
+3279,Baseline Pharmacy,standalone,Colombo,A,27
+3389,Succeed Pharmacy and Grocery,standalone,Colombo,A,26
+3491,New City Medicals Pharmacy,standalone,Colombo,A,27
+3848,United Pharmacy,standalone,Colombo,A,24
+3883,S N Pharmacy,standalone,Colombo,A,24
+3945,Mangal Medics,standalone,Colombo,A,26
+3996,ESSCO Pharmacy,standalone,Colombo,A,26
+4010,Richard Pieris Distributors (PVT)Ltd,standalone,Colombo,A,24
+4174,Cargills Food City,chain_outlet,Colombo,A,23
+4252,Cargills Food City- Thalawathugoda,chain_outlet,Colombo,A,25
+4323,Sisira Pharmacy,standalone,Colombo,A,25
+4328,Richard Pieres Distributors Pharmacy,standalone,Colombo,A,23
+4543,Family Guide Pharmacy,standalone,Colombo,A,22
+4907,Southern Pharmacy and Grocery,standalone,Colombo,A,23
+4919,Samurdhi Pharmacy,standalone,Colombo,A,21
+4932,Healthfirst pharmaceuticals,standalone,Colombo,A,22
+5041,Sunethra Pharmacy,standalone,Colombo,A,22
+5084,Orient Pharmacy,standalone,Colombo,A,21
+5105,Asiri Premier Center,standalone,Colombo,A,22
+5117,Delmege Forsyth& Co.Ltd,standalone,Colombo,A,22
+5121,Health Link Pharmacy,standalone,Colombo,A,23
+5169,Medicare Pharmacy,standalone,Colombo,A,21
+5276,Winsetha Hospitals,hospital_attached,Colombo,A,20
+5298,Rohan Pharmacy and Grocery,standalone,Colombo,A,22
+5311,Cargills- Moratuwa,chain_outlet,Colombo,A,21
+5455,Medicom Pharmacy & Grocery,standalone,Colombo,A,22
+5557,Omed Pharmacy,standalone,Colombo,A,20
+5842,New Health Line Pharmacy,standalone,Colombo,A,21
+5934,Shan Medical (Pvt) Ltd,standalone,Colombo,A,21
+5943,United Lanka Pharmacy,standalone,Colombo,A,19
+6064,Highlevel Pharmacy,standalone,Colombo,B,19
+6228,Sajeevi Pharmacy,standalone,Colombo,B,20
+6273,Super Care Pharmacy,standalone,Colombo,B,18
+6299,Cargills Food City - Hanwella.,chain_outlet,Colombo,A,19
+6724,Lanka Hospitals Out Patient Pharmacy,hospital_attached,Colombo,A,19
+6783,Union Chemist (PVT)Ltd,standalone,Colombo,B,17
+6797,Nawaloka Hospital PLC - Ground Floor,hospital_attached,Colombo,A,16
+6827,Vasana Hospital Pharmacy,hospital_attached,Colombo,A,17
+6905,Asiri pharmacy,chain_outlet,Colombo,A,16
+6909,Sajeewani Pharmacy,standalone,Colombo,B,17
+7273,Millenium Pharmacy,standalone,Colombo,B,17
+7467,Vinuth Pharmacy & Grocery,standalone,Colombo,B,16
+7506,Sharon pharmacy,standalone,Colombo,B,16
+7531,U S N Pharmaceuticals Pharmacy,standalone,Colombo,B,16
+7541,Aroka Medicals Pharmacy & Multi Shop,standalone,Colombo,B,16
+7603,C Link Pharmaceuticals,standalone,Colombo,B,14
+7666,Richard Pieris Distributors Pharmmacy,standalone,Colombo,B,15
+7707,Golden Key Hospitals Pharmacy,hospital_attached,Colombo,A,16
+7812,Cargills Food City Pharmacy-Puwakpitiya,chain_outlet,Colombo,A,15
+7890,Suwasetha Drug Unit,standalone,Colombo,B,16
+7891,New Pierson Pharmacy,standalone,Colombo,B,14
+7895,Osara Pharmacy,standalone,Colombo,B,13
+8020,MAAX Imports and Pharmacy,standalone,Colombo,B,13
+8106,Jaya Pharmacy,standalone,Colombo,B,14
+8186,Osathma Pharmacy,standalone,Colombo,B,15
+8302,GSP Pharmacy,standalone,Colombo,B,12
+8440,Doctor Express,standalone,Colombo,B,12
+8538,C & S Super Drugs,chain_outlet,Colombo,A,13
+8661,People's Pharmacy,standalone,Colombo,B,12
+8700,Medihelp Hospital Pharmacy,hospital_attached,Colombo,A,11
+8792,Samedka Pharmacy,standalone,Colombo,B,13
+8948,Wickrama Pharmacy,standalone,Colombo,B,11
+9070,Lassana Health Online Pharmacy,standalone,Colombo,B,11
+9126,Thinethsa Pharmacy,standalone,Colombo,B,11
+9424,Cargills Food City - Udahamulla,chain_outlet,Colombo,A,11
+9531,Super market Pharmacy,standalone,Colombo,B,9
+9545,Healthguard Pharmacy,standalone,Colombo,B,9
+9566,Aruna Pharmacy,standalone,Colombo,B,10
+9646,Sampath Pharmacy and Grocery,standalone,Colombo,B,9
+9742,Laughfs Pharmacy - Kohuwala,standalone,Colombo,B,10
+9775,Laugfs Supermarket Pharmacy,chain_outlet,Colombo,A,10
+10210,Laugfs Supermarket Pharmacy- Boralesgamuwa,chain_outlet,Colombo,A,7
+10267,Dinuthi Pharmacy,standalone,Colombo,B,9
+10294,True Care Pharmacy,standalone,Colombo,B,8
+10578,Cargills Food City - Nawala,chain_outlet,Colombo,A,6
+10584,Aluth Pharmacy,standalone,Colombo,B,8
+10655,AUH Saca Pharmacy,hospital_attached,Colombo,A,8
+10694,Hemas Pharmaceuticals (Pvt) Ltd,standalone,Colombo,B,6
+10917,Minudi Pharmacy,standalone,Colombo,B,8
+10933,C and C Pharmacy,standalone,Colombo,B,6
+10943,Baur Life Sciences Pharmacy,standalone,Colombo,B,6
+10962,Union Chemist,standalone,Colombo,B,5
+10977,Dulari Pharmacy and Grocery,standalone,Colombo,B,5
+10993,Suwalanka Pharmacy,standalone,Colombo,B,5
+11012,Cargills Food City Pharmacy-Angoda Colombo,chain_outlet,Colombo,A,5
+11056,HF Pharmacy,standalone,Colombo,B,5
+11062,Asiri Central Hospital Pharmacy - 3rd floor,hospital_attached,Colombo,A,6
+11106,New R S Medical Pharmacy,standalone,Colombo,B,6
+11161,Wellawatta Raj Pharmacy,standalone,Colombo,B,7
+11262,Healthguard Pharmacy,standalone,Colombo,B,6
+11315,Cargills Food City Express - Mulleriyawa,chain_outlet,Colombo,A,6
+11347,Medizone Pharmacy,standalone,Colombo,B,6
+11446,Jeewaka Pharmacy,standalone,Colombo,B,6
+11552,Helaya Health Mart (PVT) Ltd,standalone,Colombo,B,5
+11857,New Suwahasa Pharmacy,standalone,Colombo,B,5
+11868,CFC Healthcare Pharmacy - Duplication road,chain_outlet,Colombo,A,3
+11941,C R S Pharmacy & Grocery,standalone,Colombo,B,3
+11944,Ragama Pharmacy,standalone,Colombo,B,3
+11960,Sanus Pharmacy,standalone,Colombo,B,4
+11975,Bimsara Pharmacy & Grocery,standalone,Colombo,B,4
+11995,DTAN Holdings (PVT)Ltd,standalone,Colombo,B,5
+12024,Care Pharmacy,standalone,Colombo,B,5
+12101,M. D Chemists,standalone,Colombo,B,2
+12320,Healthguard Pharmacy Limited,standalone,Colombo,B,3
+12424,I D L Pharmacy,standalone,Colombo,B,2
+12472,CFC Healthcare - Arangala,chain_outlet,Colombo,A,1
+12512,Asia Health Drug Store Pharmacy,standalone,Colombo,B,1
+12704,Shan Pharmacy and Grocery,standalone,Colombo,B,1
+12722,Dhanavanthri Pharmacy,standalone,Colombo,B,2
+12730,Piumi Pharmacy & Grocery,standalone,Colombo,B,1
+12759,Healthguard Pharmacy,standalone,Colombo,B,3
+12928,Nawaloka Medical Centre Pharmacy,hospital_attached,Colombo,A,2
+12936,Super Care Pharmacy,standalone,Colombo,B,1
+12940,Megaa Pharmacy,standalone,Colombo,B,2
+12956,Medi Health Pharmacy & Grocery,standalone,Colombo,B,2
+12970,Reliable Pharmacy,standalone,Colombo,B,1
+13020,Family care Pharmacy,standalone,Colombo,B,1
+2543,New Eranga Pharmacy,standalone,Galle,A,29
+3154,K K Pharmacy,standalone,Galle,A,28
+3449,Suwana Suwa Mediya Pharmacy,standalone,Galle,A,26
+3695,New Dharshana Pharmacy,standalone,Galle,A,25
+4406,Asanka Pharmacy,standalone,Galle,A,23
+4435,Thulasi Pharmacy,standalone,Galle,A,23
+4436,New Crystal Pharmacy,standalone,Galle,A,23
+6086,City Pharmacy,standalone,Galle,B,19
+6608,Dissanayaka Pharmacy,standalone,Galle,B,17
+6999,Oskem Pharmacy & Grocery,standalone,Galle,B,18
+7809,Cargills Food City - Galle,chain_outlet,Galle,A,16
+8015,New Elpitiya Sethro Pharmacy,standalone,Galle,B,15
+8614,Wijaya Sri Pharmacy & Grocery,standalone,Galle,B,13
+8672,Rich Health Pharmacy,standalone,Galle,B,13
+8851,Sethma Pharmacy,standalone,Galle,B,12
+9056,DK Pharmacy,standalone,Galle,B,10
+10171,Health Mart Pharmacy,standalone,Galle,B,10
+11950,Sirisara Pharmacy,standalone,Galle,B,3
+13123,Sahasna Pharmacy and Grocery,standalone,Galle,B,1
+1836,Staywell Pharmacy,standalone,Gampaha,A,31
+1983,Weyangoda osusala pharmacy,standalone,Gampaha,A,29
+2252,Peoples Pharmacy,standalone,Gampaha,A,28
+2499,Trio Pharmacy,standalone,Gampaha,A,30
+2536,The Hope pharmacy,standalone,Gampaha,A,28
+2552,Devmini Pharmacy,standalone,Gampaha,A,29
+2761,Luckshow Pharmacy,standalone,Gampaha,A,28
+2772,Nawaloka Care Pharmacy- Kelaniya,hospital_attached,Gampaha,A,27
+2900,St Ann's Medical Centre (Pvt) Ltd,hospital_attached,Gampaha,A,27
+2906,P J Prasanna Pharmacy,standalone,Gampaha,A,27
+3357,Lakshan Chemist Pharmacy,standalone,Gampaha,A,25
+3366,Peliyagoda Pharmacy,standalone,Gampaha,A,27
+3489,Shanthi Waidya Niwasa Pharmacy,standalone,Gampaha,A,26
+3518,Leninton Pharmacy,standalone,Gampaha,A,27
+3644,Siyatha Pharmacy,standalone,Gampaha,A,27
+3770,Thilina Pharmacy,standalone,Gampaha,A,24
+3815,Mihinsa Osusala,standalone,Gampaha,A,26
+3838,Supuni Pharmacy,standalone,Gampaha,A,26
+3861,Nawaloka Pharmacy,hospital_attached,Gampaha,A,24
+4061,Senani Pharmacy,standalone,Gampaha,A,25
+4154,Mahajana Osusala Pharmacy,standalone,Gampaha,A,25
+4224,Arogya Pharmacy,standalone,Gampaha,A,25
+4245,Oshara Pharmacy,standalone,Gampaha,A,25
+4270,K and K Pharmacy and Grocery,standalone,Gampaha,A,23
+4445,Sampath Traders Pharmacy,standalone,Gampaha,A,24
+4651,Rajya Osusala Kiribathgoda,chain_outlet,Gampaha,A,23
+4887,Prashanthi Pharmacy and Grocery,standalone,Gampaha,A,21
+4969,True Care Pharmacy,standalone,Gampaha,A,23
+5119,New Maleesha Medicals Pharmacy,standalone,Gampaha,A,23
+5301,Getz Pharmacy,standalone,Gampaha,A,21
+5326,Rajya Osu sala,standalone,Gampaha,A,22
+5495,Sahana Osusala,standalone,Gampaha,A,21
+5528,Himansa Pharmacy,standalone,Gampaha,A,22
+5587,Kandalama Osusala,standalone,Gampaha,A,22
+5698,Harinda Osusala,standalone,Gampaha,A,21
+5865,Suhada Pharmacy,standalone,Gampaha,A,20
+5896,Medico Pharmacy,standalone,Gampaha,A,20
+5951,Sethara Pharmacy,standalone,Gampaha,A,21
+5962,ARV Medical Pharmacy & Grocery,standalone,Gampaha,A,21
+6176,S Care Pharmacy,standalone,Gampaha,B,20
+6203,Bandarawatta Pharmacy,standalone,Gampaha,B,19
+6282,Merit pharmacy,standalone,Gampaha,B,20
+6519,New Rio Pharmacy,standalone,Gampaha,B,18
+6532,Samara International (PVT) Ltd,standalone,Gampaha,B,18
+6538,Royal Pharmacy & Trade Center,standalone,Gampaha,B,18
+6605,Gen X Pharmacy,standalone,Gampaha,B,18
+6686,Wathupitiwela Pharmacy,standalone,Gampaha,B,19
+6701,Anura Pharmacy PVT Ltd,standalone,Gampaha,B,18
+6734,Asiri Pharmacy,chain_outlet,Gampaha,A,17
+6772,Cargills Food City Pharmacy - Ganemulla,chain_outlet,Gampaha,A,18
+6805,N W Pharmacy & Distributors,standalone,Gampaha,B,17
+6806,Appolo Pharmacy & Grocery,standalone,Gampaha,B,16
+7167,Link Pharma and Medi,standalone,Gampaha,B,15
+7263,Sethsiri Pharmacy and Grocery,standalone,Gampaha,B,15
+7414,New Lanka Pharmacy,standalone,Gampaha,B,17
+7559,St. Mary's Pharmacy,standalone,Gampaha,B,16
+8591,Kinara Pharmacy,standalone,Gampaha,B,14
+8612,C & S Pharmacy,standalone,Gampaha,B,13
+8633,Osilka Pharmacy,standalone,Gampaha,B,13
+8863,New Central Pharmacy,standalone,Gampaha,B,12
+9431,International Institute of Health Sciences Pharmacy,standalone,Gampaha,B,11
+9570,Lakruwan Pharmacy,standalone,Gampaha,B,11
+9740,Saubhagya Pharmacy & Grocery,standalone,Gampaha,B,11
+9879,Cargills Food City Pharmacy- Enderamulla,chain_outlet,Gampaha,A,8
+10196,Nawaloka Care Pharmacy- Kurana,hospital_attached,Gampaha,A,8
+10243,Cargills Food city Pharmacy- Peliyagoda,chain_outlet,Gampaha,A,8
+10374,The Medic Pharmacy,standalone,Gampaha,B,9
+10581,New Pharmacy,standalone,Gampaha,B,7
+10674,Hema Pharmacy,standalone,Gampaha,B,8
+10733,Union Central Pharmacy,standalone,Gampaha,B,7
+10749,Shehara Pharmacy,standalone,Gampaha,B,6
+10955,Janasetha Pharmacy and Grocery,standalone,Gampaha,B,5
+11332,Royal care pharmacy and family mart,standalone,Gampaha,B,4
+11362,Ayusha Pharmacy and Grocery,standalone,Gampaha,B,4
+11479,Richard Peris Distributors Pharmacy,standalone,Gampaha,B,5
+11873,Asiri Pharmacy,chain_outlet,Gampaha,A,4
+11876,Inora Pharmacy (PVT) Ltd,standalone,Gampaha,B,4
+11936,CFC Healthcare Pharmacy - Seeduwa,chain_outlet,Gampaha,A,3
+12025,Laugfs Supermaket Pharmacy - Endersmulla,standalone,Gampaha,B,4
+12027,C F C Healthcare Pharmacy-Kochchikade,chain_outlet,Gampaha,A,3
+12180,Suwa Shakthi Pharmacy,standalone,Gampaha,B,4
+12407,S C L Pharmacy,standalone,Gampaha,B,3
+12442,Neerodhya Pharmacy and grocery,standalone,Gampaha,B,4
+12939,Ragama Pharmacy,standalone,Gampaha,B,1
+12979,Navod Pharmacy,standalone,Gampaha,B,1
+13219,Hendala Medicals,standalone,Gampaha,B,1
+2650,Leo Pharmacy,standalone,Hambantota,B,29
+2766,Winlife Pharmacy and Grocery,standalone,Hambantota,B,29
+2966,"Gamage pharmacy, communication, cennel service",standalone,Hambantota,B,27
+4836,Walasmulla Medical Stores,standalone,Hambantota,B,22
+6095,Janasetha Pharmacy,standalone,Hambantota,C,19
+7859,Cargills Food City Pharmacy - Tangalle,chain_outlet,Hambantota,A,14
+7960,Nimron Pharmacy,standalone,Hambantota,C,14
+8194,New Lanka Pharmacy and Grocery,standalone,Hambantota,C,13
+8692,New Union Pharmacy,standalone,Hambantota,C,11
+10479,Prasanna Pharmacy,standalone,Hambantota,C,9
+3069,Soorya Pharmacy,standalone,Jaffna,B,27
+4299,V . K . Pharmacy and grocery,standalone,Jaffna,B,25
+5925,Arriyarrs Medit Marketing Pharmacy,standalone,Jaffna,C,20
+6600,Sannithy Medicals Pharmacy,standalone,Jaffna,C,18
+7154,North Star Pharmaceutical Distributors PVT Ltd,standalone,Jaffna,C,15
+7247,Rajya Osusala - Jaffna,chain_outlet,Jaffna,A,16
+8386,Better Life Medicals,standalone,Jaffna,C,12
+12445,Joyce Pharmacy,standalone,Jaffna,C,2
+12511,Prime Care Pharmacy,standalone,Jaffna,C,3
+13033,Jeraa Medicals & Grocery,standalone,Jaffna,C,2
+1524,Ushan Pharmacy and Grocery,standalone,Kalutara,A,32
+1846,VW Healthcare Pharmacy,standalone,Kalutara,A,31
+2102,Sandu Pharmacy,standalone,Kalutara,A,29
+2417,Central Pharmacy,standalone,Kalutara,A,29
+2970,Waruna Pharmacy,standalone,Kalutara,A,27
+3024,Wellcare Pharmacy and Grocery,standalone,Kalutara,A,26
+3478,Suwasetha Pharmacy,standalone,Kalutara,A,27
+3649,Rajya Osusala - Kalutara,chain_outlet,Kalutara,A,25
+3842,Thilanka Pharmacy,standalone,Kalutara,A,26
+3847,Care Pharmaceuticals Pharmacy,standalone,Kalutara,A,25
+4172,Thusitha Pharacy,standalone,Kalutara,A,23
+4673,Romek Pharmacy,standalone,Kalutara,A,24
+4837,Suwamadura Pharmacy,standalone,Kalutara,A,24
+4983,Asiri Pharmacy,chain_outlet,Kalutara,A,22
+5058,Dawn Pharmacy,standalone,Kalutara,A,21
+5692,Chilaw Medicare Pharmacy,standalone,Kalutara,A,21
+5726,Kesuke Super Market Pharmacy,standalone,Kalutara,A,21
+6017,Medicare Pharmacy & Grocery,standalone,Kalutara,B,18
+6511,Samarasinghe Pharmacy & Grocery,standalone,Kalutara,B,19
+6642,Medihelp Hospital Pharmacy,hospital_attached,Kalutara,A,18
+6801,Richard Pieris Distributors Pharmacy,standalone,Kalutara,B,16
+6910,Chamila Pharmacy,standalone,Kalutara,B,16
+7007,High Life Pharmacy,standalone,Kalutara,B,18
+7009,We Care Pharmacy,standalone,Kalutara,B,18
+7026,New Jeewa Pharmacy,standalone,Kalutara,B,18
+7236,M S Pharmacy,standalone,Kalutara,B,15
+7330,New Self Care Pharmacy,standalone,Kalutara,B,15
+7552,Ushan Pharmacy,standalone,Kalutara,B,15
+7561,New Keerthi Pharmacy,standalone,Kalutara,B,15
+7589,Nethsara Pharmacy,standalone,Kalutara,B,16
+7919,Medi Zone Pharmacy,standalone,Kalutara,B,13
+8143,Jayalath Pharmacy,standalone,Kalutara,B,13
+8165,Health care Pharmacy,standalone,Kalutara,B,13
+8281,Omedlak Pharmacy,standalone,Kalutara,B,12
+8339,New Pharmacy,standalone,Kalutara,B,12
+8617,Healthcare Pharmacy,standalone,Kalutara,B,12
+8741,Apollo Pharmacy and Groceries,standalone,Kalutara,B,11
+8986,Cargills Food city Pharmacy- Aluthgama,chain_outlet,Kalutara,A,11
+9274,Oxy Pharmacy,standalone,Kalutara,B,11
+9397,Aaliya Pharmacy,standalone,Kalutara,B,11
+9441,Cargills Food city Pharmacy- Bandaragama 02,chain_outlet,Kalutara,A,10
+9560,Bodyline Pharmacy,standalone,Kalutara,B,11
+9603,Health More Pharmacy,standalone,Kalutara,B,10
+10290,Cargills Food City Pharmacy- Panadura,chain_outlet,Kalutara,A,9
+10450,Medicare Pharmacy,standalone,Kalutara,B,9
+10493,Chemist Lanka Pharmacy,standalone,Kalutara,B,7
+11040,Hiruni Pharmacy and Grocery,standalone,Kalutara,B,5
+11048,Kavinda Pharmacy,standalone,Kalutara,B,5
+11270,Senith Pharmacy and Grocery,standalone,Kalutara,B,7
+11609,New Medical Stores,standalone,Kalutara,B,6
+11793,H S Medimart Pharmacy,standalone,Kalutara,B,4
+12419,CFC Healthcare Pharmacy - Kalutara,chain_outlet,Kalutara,A,4
+1535,Rex Pharmacy,standalone,Kandy,A,31
+1857,Quality Health Pharmacy,standalone,Kandy,A,29
+2016,Raj Drug Stores (PVT) Ltd,standalone,Kandy,A,30
+2341,Lanka Pharmacy,standalone,Kandy,A,29
+3206,Yasiru Pharmacy,standalone,Kandy,A,26
+3427,Sethsuwa Pharmacy and Grocery,standalone,Kandy,A,26
+3550,New Luck Medicals,standalone,Kandy,A,27
+3863,Kandy Pharma Chemist,standalone,Kandy,A,26
+4044,Genuine Pharmacy,standalone,Kandy,A,24
+4217,Kings Pharmacy,standalone,Kandy,A,25
+4360,Jaya Medicals,standalone,Kandy,A,24
+4396,Nawalapitiya Medicals Pharmacy,standalone,Kandy,A,23
+4404,SPC - Pilimathalawa,standalone,Kandy,A,24
+4449,Green Cross Pharmacy,standalone,Kandy,A,24
+4726,C. C. C Drugs Pharmacy,standalone,Kandy,A,23
+4736,Dumbara Pharmacy,standalone,Kandy,A,24
+4823,Seetha Investment (PVT) Ltd,standalone,Kandy,A,23
+4826,Rathna Pharmacy (PVT) Ltd,standalone,Kandy,A,23
+5208,Galhinna Pharmacy,standalone,Kandy,A,23
+5473,Katugastota Pharmacy,standalone,Kandy,A,21
+5684,Unichem Pharmacy,standalone,Kandy,A,20
+5819,RN Brothers Ceylon Pharmacy,standalone,Kandy,A,20
+5850,Cargills Food City Pharmacy - Nawalapitiya,chain_outlet,Kandy,A,20
+5955,Suwabawana Pharmacy,standalone,Kandy,A,21
+5961,Bees Pharmacy,standalone,Kandy,A,19
+6242,Asiri Hospital Kandy - 3rd floor pharmacy,hospital_attached,Kandy,A,19
+6257,S.R.K Pharmacy,standalone,Kandy,B,18
+6324,Cargills Food City pharmacy- Katugastota,chain_outlet,Kandy,A,18
+6725,Raj Pharmacy,standalone,Kandy,B,19
+6979,Rajya Osusala - Manikhinna,chain_outlet,Kandy,A,16
+7036,Sadew Pharmacy,standalone,Kandy,B,18
+7111,Healthma Pharmacy,standalone,Kandy,B,17
+7268,Rajya Osusala - Kandy,chain_outlet,Kandy,A,15
+7331,Health First Pharmacy,standalone,Kandy,B,16
+7571,Drug Mart,standalone,Kandy,B,16
+7702,Sanaska Pharmacy,standalone,Kandy,B,16
+7705,Hanthana Pharmacy,standalone,Kandy,B,14
+8104,Life Pharmacy & Grocery,standalone,Kandy,B,13
+8169,Salveo life Pharmacy,standalone,Kandy,B,15
+8418,Discount Pharmacy (Pvt) Ltd,standalone,Kandy,B,13
+9329,Cargills Food city - pilimathalawa,chain_outlet,Kandy,A,12
+9556,A S N Pharmacy,standalone,Kandy,B,9
+9862,New Orange Pharmacy,standalone,Kandy,B,8
+10059,Raj Pharmacy,standalone,Kandy,B,8
+10241,Raj Drug Stores (PVT)Ltd,standalone,Kandy,B,9
+10494,Royal Pharmacy Lanka (PVT)Ltd,chain_outlet,Kandy,A,8
+10595,Chamod Pharmacy,standalone,Kandy,B,6
+10730,Asiri Hospital Pharmacy- Ground floor,hospital_attached,Kandy,A,6
+10961,Daulagala Pharmacy,standalone,Kandy,B,5
+11984,C Pharmacy,standalone,Kandy,B,5
+12346,K. S. C Pharmacy,standalone,Kandy,B,2
+12485,Cargills Food City - Nugawela,chain_outlet,Kandy,A,2
+2513,Aanya Pharmacy,standalone,Kegalle,B,28
+2839,Chris Medical Stores,standalone,Kegalle,B,27
+4107,Arogya Pharmacy Kegalle,standalone,Kegalle,B,24
+4480,Kithulgala Pharmacy,standalone,Kegalle,B,22
+4813,Ozone Pharmacy,standalone,Kegalle,B,23
+5497,Nama Pharmacy,standalone,Kegalle,C,21
+6659,Orient Pharmacy,standalone,Kegalle,C,17
+7058,Rainbow Pharmacy and Grocery,standalone,Kegalle,C,18
+9024,Metro Medicals,standalone,Kegalle,C,11
+9205,Marawa Pharmacy,standalone,Kegalle,C,12
+9544,City Chemists,standalone,Kegalle,C,11
+9557,Sri Wijaya Pharmacy,standalone,Kegalle,C,9
+10350,New City Pharmacy,standalone,Kegalle,C,9
+12944,Algama Pharmacy,standalone,Kegalle,C,2
+11486,Medica Pharmacy & Grocery,standalone,Kilinochchi,C,5
+2082,Welcome Pharmacy,standalone,Kurunegala,A,30
+2210,Care First Pharmacy,standalone,Kurunegala,A,28
+2818,New Wayamba Chemist,standalone,Kurunegala,A,28
+3606,Sethmini Pharmacy,standalone,Kurunegala,A,27
+4790,Richard Pieris Distributors Pharmacy,standalone,Kurunegala,A,24
+5036,Ashera Medicals,standalone,Kurunegala,A,22
+5272,Suwanetha Pharmacy,standalone,Kurunegala,A,22
+6157,Health Care Pharmacy,standalone,Kurunegala,B,18
+6162,Kuliyapitiya Pharmacy,standalone,Kurunegala,B,19
+6211,Ishara Phamacy and Medical Center,hospital_attached,Kurunegala,A,18
+6253,Rideegama Pharmacy,standalone,Kurunegala,B,18
+6295,A. P Dilanthi Pharmacy,standalone,Kurunegala,B,18
+6309,Cargills Food City Pharmacy - Polgahawela,chain_outlet,Kurunegala,A,19
+6316,Isira Pharmacy,standalone,Kurunegala,B,18
+6343,Nimesha Pharmacy,standalone,Kurunegala,B,20
+6416,Sanethu pharmacy,standalone,Kurunegala,B,17
+6578,Central Lanka Pharmacy,standalone,Kurunegala,B,19
+6925,Mahawa Medicals Pharmacy,standalone,Kurunegala,B,17
+7931,Medishine Pharmacy,standalone,Kurunegala,B,14
+8773,Sasethma Channeling Center,standalone,Kurunegala,B,13
+8952,New Chintha medicals,standalone,Kurunegala,B,11
+8953,Med Life Pharmacy,standalone,Kurunegala,B,12
+8977,City Pharmacy,standalone,Kurunegala,B,13
+9017,Dilcare Pharmaceuticals (PVT)Ltd,standalone,Kurunegala,B,12
+9220,New Pacific Pharmacy,standalone,Kurunegala,B,12
+10743,Samudra Pharmacy,standalone,Kurunegala,B,8
+12968,New Medicals Pharmacy,standalone,Kurunegala,B,1
+5040,Thomas Pharmacy,standalone,Matale,C,22
+5051,Matale Medicals Pharmacy,standalone,Matale,C,22
+5822,Asha Pharmacy,standalone,Matale,C,19
+8549,Panawala Pharmacy,standalone,Matale,C,13
+9806,Leo Pharmacy,standalone,Matale,C,9
+10414,Lahiru Pharmacy,standalone,Matale,C,9
+2154,Sisila Pharmacy & Grocery,standalone,Matara,B,30
+2357,The New Appollo Pharmacy,standalone,Matara,B,30
+2394,Sethsuwa Pharmacy,standalone,Matara,B,28
+3012,Aruna Pharmacy,standalone,Matara,B,28
+4182,Deegayu Osusala,standalone,Matara,B,23
+5192,New Medicare Pharmacy,standalone,Matara,C,22
+5252,Suvera Pharmacy,standalone,Matara,C,20
+6995,New Pharmacy And Grocery,standalone,Matara,C,17
+9104,Achala Pharmacy,standalone,Matara,C,12
+9907,D G Pharmacy,standalone,Matara,C,8
+10222,Asiri Hospital Matara Pharmacy,hospital_attached,Matara,A,8
+10615,Niroga Pharmacy,standalone,Matara,C,7
+10753,Sethsuwa Pharmacy,standalone,Matara,C,7
+11194,Vision Chemist Pharmacy - Nupe,standalone,Matara,C,5
+11641,Shan Pharmacy & Grocery,standalone,Matara,C,5
+2855,Best care Pharmacy,standalone,Monaragala,B,29
+10678,Priya Pharmacy,standalone,Monaragala,C,8
+11702,Medihub Pharmacy,standalone,Monaragala,C,5
+13205,Anparasi Pharmacy and Multishop,standalone,Mullaitivu,C,1
+1870,Sathyam's Pharmacy,standalone,Nuwara Eliya,B,31
+2580,Chaminda Pharmacy,standalone,Nuwara Eliya,B,27
+8636,MAS Pharmacy & Grocery,standalone,Nuwara Eliya,C,14
+11248,Medshine Pharmacy,standalone,Nuwara Eliya,C,6
+4678,New pharmacy,standalone,Polonnaruwa,B,24
+7286,Royal Pharmacy,standalone,Polonnaruwa,C,15
+8790,Akurassa Pharmacy- Minneriya,standalone,Polonnaruwa,C,11
+2184,Hanyu Pharmacy,standalone,Puttalam,B,29
+2994,W Mendis Chemists,standalone,Puttalam,B,27
+5291,The British Stores,standalone,Puttalam,C,20
+5986,Prasanna Pharmacy,standalone,Puttalam,C,19
+6048,Premarathna Channel Center Pharmacy,standalone,Puttalam,C,18
+6237,Selani Medicals,standalone,Puttalam,C,18
+6300,Thilini Pharmacy & Healthcare,standalone,Puttalam,C,20
+7027,New Central Pharmacy,standalone,Puttalam,C,16
+7970,Cargills Food City Pharmacy- Dankotuwa,chain_outlet,Puttalam,A,14
+9520,Medicare Pharmacy,standalone,Puttalam,C,10
+11884,Pulichakulem Pharmacy and Grocery,standalone,Puttalam,C,5
+13215,H R Pharmacy,standalone,Puttalam,C,1
+2195,New Senara Pharmacy,standalone,Ratnapura,B,30
+6198,Garnet Trading co (Pvt) Ltd,standalone,Ratnapura,C,20
+6452,Madusanka Pharmacy,standalone,Ratnapura,C,19
+6685,Buddika Pharmacy,standalone,Ratnapura,C,19
+6936,Arogya Pharmacy,standalone,Ratnapura,C,17
+7186,City Chemist,standalone,Ratnapura,C,17
+7562,Himayas Pharmacy,standalone,Ratnapura,C,14
+8585,Oshadha pharmacy and Grocery,standalone,Ratnapura,C,12
+9007,Gamage Pharmacy,standalone,Ratnapura,C,13
+9913,Ruwanpura stores pharmacy,standalone,Ratnapura,C,9
+10490,Sunseth Pharmacy,standalone,Ratnapura,C,8
+10922,Pubudu Pharmacy,standalone,Ratnapura,C,6
+11064,Wellness Care Pharmacy,standalone,Ratnapura,C,5
+11850,New Lanka Pharmacy,standalone,Ratnapura,C,4
+11896,Suhada Pharmacy,standalone,Ratnapura,C,4
+12990,Uniprixx,standalone,Ratnapura,C,1
+5444,Asian Pharmacy,standalone,Trincomalee,C,20
+6251,Raajaluxmy Pharmacy,standalone,Trincomalee,C,19
+12363,Siranjeevi Medicals,standalone,Trincomalee,C,3
+11492,D M I Pharmacy,standalone,Vavuniya,C,5
