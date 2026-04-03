@@ -1,0 +1,5 @@
+date,week_of_year,is_public_holiday,is_vesak_week,is_new_year_period,is_month_end,is_school_term
+2025-12-29,1,0,0,0,0,0
+2026-01-05,2,0,0,0,0,1
+2026-01-12,3,0,0,0,0,1
+2026-01-19,4,0,0,0,0,1
