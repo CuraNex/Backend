@@ -120,9 +120,7 @@ def main():
             if m_name in models:
                 week_preds[m_name.split("_")[0]] = models[m_name].predict(X_target)
                 
-        if "seasonal_naive_model" in models:
-            week_preds["snaive"] = models["seasonal_naive_model"].predict(target_slice)
-            
+
         # Cap history to 52 weeks to evade neural memory exhaustion
         neural_history_start = week_dt - pd.Timedelta(weeks=52)
         neural_history_mask = (current_df["date"] < week_dt) & (current_df["date"] >= neural_history_start)
