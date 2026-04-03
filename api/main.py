@@ -816,9 +816,9 @@ def models_evaluation():
     wmape_bar = [{"model": r["model"], "wMAPE": float(r["wMAPE"].rstrip("%"))} for r in rankings]
 
     # Radar data (normalized)
-    metrics = ["MAE", "RMSE", "wMAPE", "Fill_Rate"]
-    mins = {m: eval_df[m].min() for m in metrics}
-    maxs = {m: eval_df[m].max() for m in metrics}
+    metrics_order = ["RMSE", "MAE", "Fill_Rate", "wMAPE"]
+    mins = {m: eval_df[m].min() for m in metrics_order}
+    maxs = {m: eval_df[m].max() for m in metrics_order}
 
     def norm(val, mi, mx, invert=False):
         if mx == mi:
@@ -827,9 +827,10 @@ def models_evaluation():
         return round(1 - n if invert else n, 3)
 
     radar_data = []
-    for metric in metrics:
+    for metric in metrics_order:
         point = {"metric": metric}
         for _, row in eval_df.iterrows():
+            # Invert so higher = better for errors (MAE, RMSE, wMAPE)
             invert = metric != "Fill_Rate"
             point[row["Model"]] = norm(row[metric], mins[metric], maxs[metric], invert)
         radar_data.append(point)
@@ -871,10 +872,9 @@ def model_deep_dive(model_name: str):
                 "fillRate": f"{float(row['Fill_Rate']):.1f}%",
             }
 
-    # Feature importance (only for tree-based models)
+    # Feature importance extraction
     feature_importance = []
     models = d.get("models", {})
-    # Models are stored as {name}_model in the pkl files
     model_obj = None
     for key in [model_name, f"{model_name}_model"]:
         candidate = models.get(key)
@@ -882,37 +882,69 @@ def model_deep_dive(model_name: str):
             model_obj = candidate
             break
 
-    if model_obj is not None and hasattr(model_obj, "feature_importances_"):
-        importances = model_obj.feature_importances_
-        # Get feature names (different APIs for sklearn vs lightgbm vs xgboost)
-        names = None
-        if hasattr(model_obj, "feature_names_in_"):
-            names = list(model_obj.feature_names_in_)
-        elif hasattr(model_obj, "feature_name_") and callable(model_obj.feature_name_):
-            names = model_obj.feature_name_()
-        elif hasattr(model_obj, "get_booster") and callable(model_obj.get_booster):
-            try:
-                names = model_obj.get_booster().feature_names
-            except Exception:
-                pass
-        if names is None:
-            names = [f"feature_{i}" for i in range(len(importances))]
-        fi = sorted(zip(names, importances), key=lambda x: x[1], reverse=True)[:10]
-        feature_importance = [{"feature": str(n), "importance": round(float(v), 4)} for n, v in fi]
+    if model_obj is not None:
+        # Case 1: Wrapper classes (LightGBMForecaster, XGBoostForecaster)
+        if hasattr(model_obj, "feature_importance") and isinstance(model_obj.feature_importance, pd.DataFrame):
+            for _, row in model_obj.feature_importance.head(10).iterrows():
+                feature_importance.append({
+                    "feature": str(row["feature"]),
+                    "importance": float(row["importance"])
+                })
+        
+        # Case 2: Stacking Ensemble (model weights)
+        elif model_name == "ensemble" and hasattr(model_obj, "get_model_contributions"):
+            contrib = model_obj.get_model_contributions()
+            if not contrib.empty:
+                for _, row in contrib.iterrows():
+                    feature_importance.append({
+                        "feature": f"Model: {row['model']}",
+                        "importance": float(row["weight"])
+                    })
 
-    # Actual vs predicted scatter (from test predictions)
+        # Case 3: Raw models with standard API
+        elif hasattr(model_obj, "feature_importances_"):
+            importances = model_obj.feature_importances_
+            names = None
+            if hasattr(model_obj, "feature_names_in_"):
+                names = list(model_obj.feature_names_in_)
+            elif hasattr(model_obj, "feature_name_") and callable(model_obj.feature_name_):
+                names = model_obj.feature_name_()
+            elif hasattr(model_obj, "get_booster"):
+                try: names = model_obj.get_booster().feature_names
+                except: pass
+            
+            if names is None:
+                names = [f"feat_{i}" for i in range(len(importances))]
+            
+            fi = sorted(zip(names, importances), key=lambda x: x[1], reverse=True)[:10]
+            for name, imp in fi:
+                feature_importance.append({"feature": name, "importance": float(imp)})
+
+    # Scatter plot data (Actual vs Predicted from validation set)
     scatter = []
-    pred_col = f"pred_{model_name}"
-    if "features" in d:
-        df = d["features"]
-        if pred_col in df.columns:
-            valid = df[df[pred_col].notna() & df["quantity_ordered"].notna()].copy()
-            if len(valid) > 500:
-                valid = valid.sample(500, random_state=42)
-            for _, row in valid.iterrows():
+    # Try to find the prediction column in the features data if available
+    # The pipeline saves pred_{model} for historical validation
+    features = d.get("features")
+    if features is not None:
+        pred_col = f"pred_{model_name}"
+        if pred_col in features.columns:
+            valid = features[features[pred_col].notna() & features["quantity_ordered"].notna()].copy()
+            if len(valid) > 0:
+                if len(valid) > 500:
+                    valid = valid.sample(500, random_state=42)
+                for _, row in valid.iterrows():
+                    scatter.append({
+                        "x": round(float(row["quantity_ordered"]), 1),
+                        "y": round(float(row[pred_col]), 1),
+                    })
+        elif model_name == "ensemble" and "pred_ensemble" in features.columns:
+             valid = features[features["pred_ensemble"].notna() & features["quantity_ordered"].notna()].copy()
+             if len(valid) > 500:
+                 valid = valid.sample(500, random_state=42)
+             for _, row in valid.iterrows():
                 scatter.append({
                     "x": round(float(row["quantity_ordered"]), 1),
-                    "y": round(float(row[pred_col]), 1),
+                    "y": round(float(row["pred_ensemble"]), 1),
                 })
 
     return {
