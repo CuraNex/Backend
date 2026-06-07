@@ -18,6 +18,7 @@ import sys
 import time
 import pickle
 from pathlib import Path
+import mlflow
 
 import numpy as np
 import pandas as pd
@@ -333,6 +334,16 @@ def run_pipeline(
     logger.info("=" * 80)
     logger.info("CuraNex AI — Full Training Pipeline")
     logger.info("=" * 80)
+
+    mlflow.set_tracking_uri(str(cfg.MLFLOW_DIR))
+    mlflow.set_experiment("curanex_ai_training")
+    mlflow.start_run(run_name=f"training_run_{int(start_time)}")
+
+    mlflow.log_params({
+        "tune_hyperparameters": tune_hyperparameters,
+        "train_neural": train_neural,
+        "seed": cfg.SEED,
+    })
     
     # ── 1. Load Data ──
     logger.info("\n[Phase 1] Loading data...")
@@ -361,6 +372,14 @@ def run_pipeline(
                  f"Val: {len(splits['X_val']):,}, "
                  f"Test: {len(splits['X_test']):,}")
     
+    mlflow.log_metrics({
+        "n_train_samples": len(splits["X_train"]),
+        "n_val_samples": len(splits["X_val"]),
+        "n_test_samples": len(splits["X_test"]),
+        "n_features": len(splits["feature_cols"]),
+    })
+    
+    
     all_models = {}
     all_predictions = {}
     
@@ -375,6 +394,11 @@ def run_pipeline(
             splits["X_train"], splits["y_train"],
             categorical_features=feat_info["categorical"],
         )
+
+        if tuned_lgbm_params:
+            mlflow.log_params({
+                f"lgbm_tuned_{k}": v for k, v in tuned_lgbm_params.items()
+        })
         
         logger.info("\n[Phase 3b] Hyperparameter tuning (XGBoost)...")
         xgb_tuner = XGBoostForecaster(name="xgb_tuner")
@@ -453,6 +477,18 @@ def run_pipeline(
         test_model_preds,
         splits["df_test"],
     )
+
+    if "comparison" in evaluation:
+        comp_df = evaluation["comparison"]
+        for _, row in comp_df.iterrows():
+            model_name = row["Model"].lower().replace(" ", "_")
+            mlflow.log_metrics({
+                f"{model_name}_mae": float(row.get("MAE", 0)),
+                f"{model_name}_rmse": float(row.get("RMSE", 0)),
+                f"{model_name}_wmape": float(row.get("wMAPE", 0)),
+                f"{model_name}_fill_rate": float(row.get("Fill_Rate", 0)),
+                f"{model_name}_bias": float(row.get("Bias", 0)),
+            })
     
     # Collect ensemble predictions for val + test (used by plots)
     ensemble_preds_by_split = {}
@@ -507,6 +543,8 @@ def run_pipeline(
             models=all_models,
             ensemble_preds=ensemble_preds_by_split,
         )
+
+        mlflow.log_artifacts(cfg.PLOTS_DIR.as_posix(), artifact_path="evaluation_plots")
     
     return {
         "models": all_models,
